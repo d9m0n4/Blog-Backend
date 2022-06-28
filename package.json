@@ -1,0 +1,30 @@
+{
+  "name": "blog",
+  "version": "1.0.0",
+  "description": "blog server",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/d9m0n4/Blog-Backend.git"
+  },
+  "keywords": [
+    "express",
+    "nodejs",
+    "js"
+  ],
+  "author": " <d9m0n4>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/d9m0n4/Blog-Backend/issues"
+  },
+  "homepage": "https://github.com/d9m0n4/Blog-Backend#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "nodemon": "^2.0.18"
+  }
+}
