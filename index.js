@@ -17,7 +17,7 @@ app.use(
     origin: 'http://localhost:3000',
   }),
 );
-app.use('/api', Routes);
+app.use('/api', Routes());
 
 app.use(ErrorHandling);
 
@@ -31,7 +31,9 @@ const start = async () => {
       }
       console.log(`server started on ${process.env.PORT}`);
     });
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 start();
