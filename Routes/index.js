@@ -14,6 +14,8 @@ const Routes = () => {
 
   router.post('/posts', PostCtrl.create);
   router.get('/posts', PostCtrl.getAllPosts);
+  router.get('/posts/:id', PostCtrl.getPostById);
+  router.get('/posts/tags/:tag', PostCtrl.getPostByTag);
 
   return router;
 };
