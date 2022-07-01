@@ -26,6 +26,7 @@ const Post = sequlize.define('post', {
       notEmpty: true,
     },
   },
+  previewImage: { type: DataTypes.STRING, allowNull: false },
   viewsCount: { type: DataTypes.INTEGER, defaultValue: 0 },
   likes: { type: DataTypes.INTEGER, defaultValue: 0 },
 });
@@ -55,5 +56,8 @@ Tag.belongsTo(Post);
 
 Post.hasMany(Comment);
 Comment.belongsTo(Post);
+
+User.hasMany(Comment);
+Comment.belongsTo(User);
 
 export { User, Tag, Post, Comment };

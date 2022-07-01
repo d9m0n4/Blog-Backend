@@ -4,19 +4,25 @@ import Routes from './Routes/index.js';
 import sequlize from './core/db.js';
 import dotenv from 'dotenv';
 import ErrorHandling from './middleware/ErrorHandling.js';
+import fileUpload from 'express-fileupload';
+import path from 'path';
 import * as models from './models/models.js';
+
+const __dirname = path.resolve(path.dirname(''));
 
 dotenv.config();
 
 const app = express();
 
-app.use(json());
+app.use(express.json());
+app.use(express.static(path.resolve(__dirname, 'static')));
 app.use(
   cors({
     credentials: true,
     origin: 'http://localhost:3000',
   }),
 );
+app.use(fileUpload({}));
 app.use('/api', Routes());
 
 app.use(ErrorHandling);

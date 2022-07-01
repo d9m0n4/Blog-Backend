@@ -5,9 +5,18 @@ import ApiError from '../error/index.js';
 import { Comment, Post, Tag, User } from '../models/models.js';
 
 class PostService {
-  create = async (title, text, tags, userId) => {
+  convertePosts = (posts) => {
+    return posts.map((post) => {
+      const postItem = new PostDto(post);
+      const postUser = new UserDto(post.user);
+      const { items } = post.tags;
+      return { ...postItem, user: postUser, tags: [...items] };
+    });
+  };
+
+  create = async (title, text, tags, userId, fileName) => {
     try {
-      const post = await Post.create({ title, text, userId });
+      const post = await Post.create({ title, text, userId, previewImage: fileName });
       const postTags = await Tag.create({ items: tags, postId: post.id });
 
       return { ...post, tags: postTags };
@@ -23,18 +32,14 @@ class PostService {
       include: [{ model: Tag, attributes: ['items'] }, { model: User }, { model: Comment }],
     });
 
-    const postsData = posts.map((post) => {
-      const postItem = new PostDto(post);
-      const postUser = new UserDto(post.user);
-      const { items } = post.tags;
-      return { ...postItem, user: postUser, tags: [...items] };
-    });
-    return postsData;
+    return this.convertePosts(posts);
   };
 
   getPostById = async (id) => {
     try {
-      const postData = await Post.findByPk(id, {
+      await Post.increment('viewsCount', { by: 1, where: { id } });
+      const postData = await Post.findOne({
+        where: { id },
         raw: true,
         nest: true,
         include: [{ model: Tag, attributes: ['items'] }, { model: User }, { model: Comment }],
@@ -43,11 +48,12 @@ class PostService {
       const { items } = postData.tags;
       const user = new UserDto(postData.user);
 
-      return { ...postData, user, tags: items };
+      return { ...postData, tags: items, user };
     } catch (error) {
       throw ApiError.badRequest('Пост не найден', error);
     }
   };
+
   getPostByTag = async (tag) => {
     try {
       const posts = await Post.findAll({
@@ -59,12 +65,23 @@ class PostService {
             attributes: ['items'],
             where: { items: { [Op.contains]: [tag] } },
           },
+          { model: User },
+          { model: Comment },
         ],
       });
-      return posts;
+      return this.convertePosts(posts);
     } catch (error) {
       throw ApiError.badRequest('Посты не найдены', error);
     }
+  };
+  updatePosts = async (title, text, id, filename, tags) => {
+    const postData = await Post.update(
+      { title, text, previewImage: filename },
+      { where: { id }, returning: true },
+    );
+    await Tag.update({ items: tags }, { where: { postId: id } });
+
+    return postData;
   };
 }
 

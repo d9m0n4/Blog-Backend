@@ -7,6 +7,8 @@ class PostDto {
   likes;
   views;
   comments;
+  previewImage;
+  createdAt;
 
   constructor(model) {
     this.id = model.id;
@@ -17,6 +19,8 @@ class PostDto {
     this.likes = model.likes;
     this.views = model.viewsCount;
     this.comments = model.comments;
+    this.previewImage = model.previewImage;
+    this.createdAt = model.createdAt;
   }
 }
 
