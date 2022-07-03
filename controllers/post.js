@@ -12,17 +12,28 @@ class PostController {
     return filename;
   };
 
+  file = async (req, res, next) => {
+    try {
+      console.log(req.file, req.body);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   create = async (req, res, next) => {
     try {
       const { title, tags, text, userId } = req.body;
       const file = req.files;
+      const tagsArr = tags.split(',').map((i) => i.trim());
+
       let fileName;
       if (file) {
         fileName = this.fileName(file.img);
       }
-      const postData = await post.create(title, text, tags, userId, fileName);
+      const postData = await post.create(title, text, tagsArr, userId, fileName);
       res.status(200).json(postData);
     } catch (error) {
+      console.log(error);
       next(error);
     }
   };
@@ -32,6 +43,7 @@ class PostController {
       const posts = await post.getAllPosts();
       res.status(200).json(posts);
     } catch (error) {
+      console.log(error);
       next(error);
     }
   };

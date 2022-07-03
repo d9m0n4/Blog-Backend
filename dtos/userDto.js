@@ -4,6 +4,7 @@ class UserDto {
   fullName;
   createdAt;
   rating;
+  avatar;
 
   constructor(model) {
     this.id = model.id;
@@ -11,6 +12,7 @@ class UserDto {
     this.fullName = model.fullName;
     this.createdAt = model.createdAt;
     this.rating = model.rating;
+    this.avatar = model.avatar;
   }
 }
 

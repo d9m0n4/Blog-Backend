@@ -7,6 +7,7 @@ const User = sequlize.define('user', {
   email: { type: DataTypes.STRING, unique: true },
   password: { type: DataTypes.STRING },
   rating: { type: DataTypes.INTEGER, defaultValue: 1 },
+  avatar: { type: DataTypes.STRING },
 });
 
 const Post = sequlize.define('post', {
@@ -20,7 +21,7 @@ const Post = sequlize.define('post', {
   },
 
   text: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(5000),
     allowNull: false,
     validate: {
       notEmpty: true,
@@ -47,7 +48,9 @@ User.hasMany(Post, {
     notEmpty: true,
   },
 });
-Post.belongsTo(User);
+Post.belongsTo(User, {
+  allowNull: false,
+});
 
 Post.hasMany(Tag, {
   allowNull: false,

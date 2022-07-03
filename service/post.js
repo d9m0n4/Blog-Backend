@@ -14,12 +14,12 @@ class PostService {
     });
   };
 
-  create = async (title, text, tags, userId, fileName) => {
+  create = async (title, text, tagsArr, userId, fileName) => {
     try {
       const post = await Post.create({ title, text, userId, previewImage: fileName });
-      const postTags = await Tag.create({ items: tags, postId: post.id });
+      await Tag.create({ items: tagsArr, postId: post.id });
 
-      return { ...post, tags: postTags };
+      return { id: post.id };
     } catch (error) {
       throw ApiError.badRequest('error', error);
     }
@@ -30,8 +30,8 @@ class PostService {
       raw: true,
       nest: true,
       include: [{ model: Tag, attributes: ['items'] }, { model: User }, { model: Comment }],
+      order: [['createdAt', 'DESC']],
     });
-
     return this.convertePosts(posts);
   };
 
