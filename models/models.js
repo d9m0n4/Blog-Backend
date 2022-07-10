@@ -35,6 +35,7 @@ const Post = sequlize.define('post', {
 const Comment = sequlize.define('comment', {
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   text: { type: DataTypes.STRING },
+  files: { type: DataTypes.STRING },
 });
 
 const Tag = sequlize.define('tag', {
