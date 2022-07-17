@@ -5,7 +5,7 @@ class PostDto {
   text;
   user;
   likes;
-  views;
+  viewsCount;
   comments;
   previewImage;
   createdAt;
@@ -17,7 +17,7 @@ class PostDto {
     this.text = model.text;
     this.user = model.user;
     this.likes = model.likes;
-    this.views = model.viewsCount;
+    this.viewsCount = model.viewsCount;
     this.comments = model.comments;
     this.previewImage = model.previewImage;
     this.createdAt = model.createdAt;

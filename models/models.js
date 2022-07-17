@@ -10,6 +10,11 @@ const User = sequlize.define('user', {
   avatar: { type: DataTypes.STRING },
 });
 
+const Token = sequlize.define('token', {
+  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+  refreshToken: { type: DataTypes.STRING(1000) },
+});
+
 const Post = sequlize.define('post', {
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   title: {
@@ -43,6 +48,9 @@ const Tag = sequlize.define('tag', {
   items: { type: DataTypes.ARRAY(DataTypes.STRING) },
 });
 
+Token.hasMany(User);
+Token.belongsTo(User);
+
 User.hasMany(Post, {
   allowNull: false,
   validate: {
@@ -64,4 +72,4 @@ Comment.belongsTo(Post);
 User.hasMany(Comment);
 Comment.belongsTo(User);
 
-export { User, Tag, Post, Comment };
+export { User, Tag, Post, Comment, Token };

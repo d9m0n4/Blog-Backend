@@ -56,7 +56,6 @@ class PostController {
       }
       const postData = await post.getPostById(id);
       res.json(postData);
-      console.log(id);
     } catch (error) {
       console.log(error);
       next(error);
