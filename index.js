@@ -7,6 +7,7 @@ import ErrorHandling from './middleware/ErrorHandling.js';
 import fileUpload from 'express-fileupload';
 import path from 'path';
 import * as models from './models/models.js';
+import cookieParser from 'cookie-parser';
 
 const __dirname = path.resolve(path.dirname(''));
 
@@ -22,6 +23,7 @@ app.use(
     origin: 'http://localhost:3000',
   }),
 );
+app.use(cookieParser());
 app.use(fileUpload({}));
 app.use('/api', Routes());
 

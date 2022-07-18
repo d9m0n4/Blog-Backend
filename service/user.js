@@ -2,6 +2,7 @@ import ApiError from '../error/index.js';
 import { User } from '../models/models.js';
 import bcrypt from 'bcrypt';
 import UserDto from '../dtos/userDto.js';
+import TokenService from './token.js';
 
 class UserService {
   registration = async (email, password, fullName) => {
@@ -21,7 +22,10 @@ class UserService {
     });
 
     const userData = new UserDto(user);
-    return userData;
+    const tokens = TokenService.generateTokens({ ...userData });
+    await TokenService.saveToken(userData.id, tokens.refreshToken);
+
+    return { userData, ...tokens };
   };
 
   login = async (email, password) => {
@@ -37,7 +41,34 @@ class UserService {
     }
 
     const userData = new UserDto(user);
-    return userData;
+    const tokens = TokenService.generateTokens({ ...userData });
+    await TokenService.saveToken(userData.id, tokens.refreshToken);
+
+    return { userData, ...tokens };
+  };
+
+  logout = async (token) => {
+    return await TokenService.removeToken(token);
+  };
+
+  refreshToken = async (token) => {
+    if (!token) {
+      throw ApiError.unauthorized('Пользователь не авторизован');
+    }
+
+    const userData = TokenService.validateRefreshToken(token);
+
+    const tokenFromDB = TokenService.findToken(token);
+    if (!userData || !tokenFromDB) {
+      throw ApiError.unauthorized('Пользователь не авторизован');
+    }
+
+    const user = await User.findOne({ where: { id: userData.id } });
+    const userDataDto = new UserDto(user);
+    const tokens = TokenService.generateTokens({ ...userData });
+    await TokenService.saveToken(userData.id, tokens.refreshToken);
+
+    return { userDataDto, ...tokens };
   };
 }
 
