@@ -1,8 +1,9 @@
 import ApiError from '../error/index.js';
-import { User } from '../models/models.js';
+import { Post, User } from '../models/models.js';
 import bcrypt from 'bcrypt';
 import UserDto from '../dtos/userDto.js';
 import TokenService from './token.js';
+import { Op } from 'sequelize';
 
 class UserService {
   registration = async (email, password, fullName) => {
@@ -56,19 +57,39 @@ class UserService {
       throw ApiError.unauthorized('Пользователь не авторизован');
     }
 
-    const userData = TokenService.validateRefreshToken(token);
+    const tokenUserData = TokenService.validateRefreshToken(token);
 
     const tokenFromDB = TokenService.findToken(token);
-    if (!userData || !tokenFromDB) {
+    if (!tokenUserData || !tokenFromDB) {
       throw ApiError.unauthorized('Пользователь не авторизован');
     }
 
-    const user = await User.findOne({ where: { id: userData.id } });
-    const userDataDto = new UserDto(user);
-    const tokens = TokenService.generateTokens({ ...userData });
-    await TokenService.saveToken(userData.id, tokens.refreshToken);
+    const user = await User.findOne({ where: { id: tokenUserData.id } });
+    const userData = new UserDto(user);
+    const tokens = TokenService.generateTokens({ ...tokenUserData });
+    await TokenService.saveToken(tokenUserData.id, tokens.refreshToken);
 
-    return { userDataDto, ...tokens };
+    return { userData, ...tokens };
+  };
+
+  getUsers = async () => {
+    const posts = await Post.findAll();
+    const postsUsers = posts.map((post) => post.userId);
+    const users = await User.findAll({
+      where: {
+        id: {
+          [Op.or]: postsUsers,
+        },
+      },
+      order: [['rating', 'DESC']],
+      limit: 5,
+    });
+    if (!users) {
+      throw ApiError.badRequest('Авторы не найдены');
+    }
+    const usersData = users.map((user) => new UserDto(user));
+
+    return usersData;
   };
 }
 

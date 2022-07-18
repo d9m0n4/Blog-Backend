@@ -4,8 +4,8 @@ import { Token } from '../models/models.js';
 
 class TokenService {
   generateTokens = (payload) => {
-    const accessToken = jwt.sign(payload, 'json_token', { expiresIn: '30m' });
-    const refreshToken = jwt.sign(payload, 'jwt_refresh', { expiresIn: '1d' });
+    const accessToken = jwt.sign(payload, 'json_token');
+    const refreshToken = jwt.sign(payload, 'jwt_refresh');
     return {
       accessToken,
       refreshToken,

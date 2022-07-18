@@ -15,6 +15,9 @@ const Routes = () => {
   router.post('/auth/registration', registerValidation, UserCtrl.registration);
   router.post('/auth/login', registerValidation, UserCtrl.login);
   router.post('/auth/logout', UserCtrl.logout);
+  router.get('/auth/refresh', UserCtrl.refresh);
+
+  router.get('/users/', UserCtrl.getUsers);
 
   router.post('/posts', PostCtrl.create);
   router.get('/posts', PostCtrl.getAllPosts);

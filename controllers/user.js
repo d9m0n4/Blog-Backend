@@ -55,6 +55,16 @@ class UserController {
       });
       res.status(200).json(userData);
     } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  };
+  getUsers = async (req, res, next) => {
+    try {
+      const users = await user.getUsers();
+      res.json(users);
+    } catch (error) {
+      console.log(error);
       next(error);
     }
   };
