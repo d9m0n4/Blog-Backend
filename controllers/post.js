@@ -24,7 +24,7 @@ class PostController {
     try {
       const { title, tags, text, userId } = req.body;
       const file = req.files;
-      const tagsArr = tags.split(',').map((i) => i.trim());
+      const tagsArr = tags.split(',').map((i) => i.trim().toLowerCase());
 
       let fileName;
       if (file) {

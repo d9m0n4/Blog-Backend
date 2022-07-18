@@ -1,6 +1,5 @@
 import user from '../service/user.js';
 import { validationResult } from 'express-validator/src/validation-result.js';
-import UserDto from '../dtos/userDto.js';
 
 class UserController {
   registration = async (req, res, next) => {
