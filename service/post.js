@@ -9,8 +9,11 @@ class PostService {
     return posts.map((post) => {
       const postItem = new PostDto(post);
       const postUser = new UserDto(post.user);
-      const { items } = post.tags;
-      return { ...postItem, user: postUser, tags: [...items] };
+      const { items } = post.tags[0];
+      const comments = post.comments.map((comment) => {
+        return { ...comment, user: new UserDto(comment.user) };
+      });
+      return { ...postItem, user: postUser, tags: [...items], comments };
     });
   };
 
@@ -27,12 +30,18 @@ class PostService {
 
   getAllPosts = async () => {
     const posts = await Post.findAll({
-      raw: true,
       nest: true,
-      include: [{ model: Tag, attributes: ['items'] }, { model: User }, { model: Comment }],
+      include: [
+        { model: Tag, attributes: ['items'] },
+        { model: User, nested: true },
+        { model: Comment, include: { model: User } },
+      ],
       order: [['createdAt', 'DESC']],
     });
-    return this.convertePosts(posts);
+
+    const parsedPosts = JSON.parse(JSON.stringify(posts));
+
+    return this.convertePosts(parsedPosts);
   };
 
   getPostById = async (id) => {
@@ -40,15 +49,21 @@ class PostService {
       await Post.increment('viewsCount', { by: 1, where: { id } });
       const postData = await Post.findOne({
         where: { id },
-        raw: true,
         nest: true,
-        include: [{ model: Tag, attributes: ['items'] }, { model: User }, { model: Comment }],
+        include: [
+          { model: Tag, attributes: ['items'] },
+          { model: User },
+          { model: Comment, include: { model: User } },
+        ],
       });
 
-      const { items } = postData.tags;
-      const user = new UserDto(postData.user);
-
-      return { ...postData, tags: items, user };
+      const parsedPosts = JSON.parse(JSON.stringify(postData));
+      const { items } = postData.tags[0];
+      const user = new UserDto(parsedPosts.user);
+      const comments = parsedPosts.comments.map((comment) => {
+        return { ...comment, user: new UserDto(comment.user) };
+      });
+      return { ...parsedPosts, tags: items, user, comments };
     } catch (error) {
       throw ApiError.badRequest('Пост не найден', error);
     }
@@ -57,7 +72,6 @@ class PostService {
   getPostByTag = async (tag) => {
     try {
       const posts = await Post.findAll({
-        raw: true,
         nest: true,
         include: [
           {
@@ -66,10 +80,11 @@ class PostService {
             where: { items: { [Op.contains]: [tag] } },
           },
           { model: User },
-          { model: Comment },
+          { model: Comment, include: { model: User } },
         ],
       });
-      return this.convertePosts(posts);
+      const parsedPosts = JSON.parse(JSON.stringify(posts));
+      return this.convertePosts(parsedPosts);
     } catch (error) {
       throw ApiError.badRequest('Посты не найдены', error);
     }

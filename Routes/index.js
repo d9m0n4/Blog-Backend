@@ -4,6 +4,7 @@ import TagsController from '../controllers/tags.js';
 import UserController from '../controllers/user.js';
 import { registerValidation } from '../validations/auth.js';
 import auth from '../middleware/authHandler.js';
+import CommentsController from '../controllers/comments.js';
 
 const router = new Router();
 
@@ -11,6 +12,7 @@ const Routes = () => {
   const UserCtrl = new UserController();
   const PostCtrl = new PostController();
   const TagsCtrl = new TagsController();
+  const CommentsCtrl = new CommentsController();
 
   router.post('/auth/registration', registerValidation, UserCtrl.registration);
   router.post('/auth/login', registerValidation, UserCtrl.login);
@@ -26,7 +28,8 @@ const Routes = () => {
   router.post('/posts/edit/:id', auth, PostCtrl.updatePost);
 
   router.get('/tags', TagsCtrl.getTags);
-  router;
+
+  router.post('/comments', CommentsCtrl.createComment);
 
   return router;
 };
