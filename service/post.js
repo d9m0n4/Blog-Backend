@@ -53,7 +53,7 @@ class PostService {
         include: [
           { model: Tag, attributes: ['items'] },
           { model: User },
-          { model: Comment, include: { model: User } },
+          { model: Comment, include: { model: User }, order: [['createdAt', 'DESC']] },
         ],
       });
 

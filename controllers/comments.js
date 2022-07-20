@@ -5,11 +5,13 @@ class CommentsController {
   createComment = async (req, res, next) => {
     try {
       const { userId, postId, comment } = req.body;
-      const { file } = req.files;
+      const files = req.files;
       const filesArray = [];
-      file.length ? filesArray.push(...file) : filesArray.push(file);
+      if (files) {
+        files.file.length ? filesArray.push(...files.file) : filesArray.push(files.file);
+      }
 
-      const fileName = filesArray.map((file) => createFileName(file));
+      const fileName = filesArray ? filesArray.map((file) => createFileName(file)) : null;
       const commentData = await commentService.createComment(userId, postId, comment, fileName);
       res.json(commentData);
     } catch (error) {
