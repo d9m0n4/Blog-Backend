@@ -7,6 +7,7 @@ import { Comment, Post, Tag, User } from '../models/models.js';
 class PostService {
   convertePosts = (posts) => {
     return posts.map((post) => {
+      console.log(post);
       const postItem = new PostDto(post);
       const postUser = new UserDto(post.user);
       const { items } = post.tags[0];
