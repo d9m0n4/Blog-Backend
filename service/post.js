@@ -8,7 +8,7 @@ class PostService {
   convertePosts = (posts) => {
     return posts.map((post) => {
       const postItem = new PostDto(post);
-      const postUser = new UserDto(post.user);
+      const postUser = post.user ? new UserDto(post.user) : null;
       const { items } = post.tags[0];
       const comments = post.comments.map((comment) => {
         return { ...comment, user: new UserDto(comment.user) };
@@ -21,6 +21,7 @@ class PostService {
     try {
       const post = await Post.create({ title, text, userId, previewImage: fileName });
       await Tag.create({ items: tagsArr, postId: post.id });
+      await User.increment('rating', { by: 1, where: { id: userId } });
 
       return { id: post.id };
     } catch (error) {
@@ -89,6 +90,24 @@ class PostService {
       throw ApiError.badRequest('Посты не найдены', error);
     }
   };
+
+  getUserPosts = async (id) => {
+    const posts = await Post.findAll({
+      nest: true,
+      where: { userId: id },
+      include: [
+        {
+          model: Tag,
+          attributes: ['items'],
+        },
+
+        { model: Comment, include: { model: User } },
+      ],
+    });
+    const parsedPosts = JSON.parse(JSON.stringify(posts));
+    return this.convertePosts(parsedPosts);
+  };
+
   updatePosts = async (title, text, id, filename, tags) => {
     const postData = await Post.update(
       { title, text, previewImage: filename },

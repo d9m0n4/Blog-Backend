@@ -55,6 +55,19 @@ class PostController {
     }
   };
 
+  getUserPosts = async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      console.log(id);
+      const userId = req.user;
+      const posts = await post.getUserPosts(id);
+      res.json(posts);
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  };
+
   updatePost = async (req, res, next) => {
     try {
       const { title, tags, text } = req.body;
