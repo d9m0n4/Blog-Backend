@@ -23,7 +23,18 @@ class PostController {
 
   getAllPosts = async (req, res, next) => {
     try {
-      const posts = await post.getAllPosts();
+      const posts = await post.getAllPosts(req.query.query);
+      res.status(200).json(posts);
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  };
+
+  searchPosts = async (req, res, next) => {
+    try {
+      const posts = await post.searchPosts(req.query.query);
+      console.log(posts);
       res.status(200).json(posts);
     } catch (error) {
       console.log(error);

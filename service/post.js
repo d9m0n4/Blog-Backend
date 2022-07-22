@@ -29,8 +29,31 @@ class PostService {
     }
   };
 
-  getAllPosts = async () => {
+  getAllPosts = async (query) => {
+    console.log(query);
     const posts = await Post.findAll({
+      where: {
+        title: {
+          [Op.match]: query ? query : '',
+        },
+      },
+      nest: true,
+      include: [
+        { model: Tag, attributes: ['items'] },
+        { model: User, nested: true },
+        { model: Comment, include: { model: User } },
+      ],
+      order: [['createdAt', 'DESC']],
+    });
+
+    const parsedPosts = JSON.parse(JSON.stringify(posts));
+
+    return this.convertePosts(parsedPosts);
+  };
+
+  searchPosts = async (query) => {
+    const posts = await Post.findAll({
+      where: { title: query },
       nest: true,
       include: [
         { model: Tag, attributes: ['items'] },
