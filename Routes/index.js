@@ -3,8 +3,8 @@ import PostController from '../controllers/post.js';
 import TagsController from '../controllers/tags.js';
 import UserController from '../controllers/user.js';
 import { registerValidation } from '../validations/auth.js';
-import auth from '../middleware/authHandler.js';
 import CommentsController from '../controllers/comments.js';
+import authHandler from '../middleware/authHandler.js';
 
 const router = new Router();
 
@@ -21,17 +21,16 @@ const Routes = () => {
 
   router.get('/users/', UserCtrl.getUsers);
 
-  router.post('/posts', PostCtrl.create);
+  router.post('/posts', authHandler, PostCtrl.create);
   router.get('/posts', PostCtrl.getAllPosts);
-  router.get('/posts?query', PostCtrl.searchPosts);
   router.get('/posts/:id', PostCtrl.getPostById);
   router.get('/posts/user/:id', PostCtrl.getUserPosts);
   router.get('/posts/tags/:tag', PostCtrl.getPostByTag);
-  router.post('/posts/edit/:id', auth, PostCtrl.updatePost);
+  router.post('/posts/edit/:id', authHandler, PostCtrl.updatePost);
 
   router.get('/tags', TagsCtrl.getTags);
 
-  router.post('/comments', CommentsCtrl.createComment);
+  router.post('/comments', authHandler, CommentsCtrl.createComment);
 
   return router;
 };

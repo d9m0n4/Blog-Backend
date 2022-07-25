@@ -30,30 +30,17 @@ class PostService {
   };
 
   getAllPosts = async (query) => {
-    console.log(query);
-    const posts = await Post.findAll({
-      where: {
+    let whereOption = {};
+    if (query) {
+      whereOption = {
         title: {
-          [Op.match]: query ? query : '',
+          [Op.iLike]: `%${query}%`,
         },
-      },
-      nest: true,
-      include: [
-        { model: Tag, attributes: ['items'] },
-        { model: User, nested: true },
-        { model: Comment, include: { model: User } },
-      ],
-      order: [['createdAt', 'DESC']],
-    });
+      };
+    }
 
-    const parsedPosts = JSON.parse(JSON.stringify(posts));
-
-    return this.convertePosts(parsedPosts);
-  };
-
-  searchPosts = async (query) => {
     const posts = await Post.findAll({
-      where: { title: query },
+      where: whereOption,
       nest: true,
       include: [
         { model: Tag, attributes: ['items'] },

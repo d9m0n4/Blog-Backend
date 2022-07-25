@@ -31,17 +31,6 @@ class PostController {
     }
   };
 
-  searchPosts = async (req, res, next) => {
-    try {
-      const posts = await post.searchPosts(req.query.query);
-      console.log(posts);
-      res.status(200).json(posts);
-    } catch (error) {
-      console.log(error);
-      next(error);
-    }
-  };
-
   getPostById = async (req, res, next) => {
     try {
       const { id } = req.params;
@@ -71,6 +60,7 @@ class PostController {
       const { id } = req.params;
       console.log(id);
       const userId = req.user;
+      console.log(userId);
       const posts = await post.getUserPosts(id);
       res.json(posts);
     } catch (error) {

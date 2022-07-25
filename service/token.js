@@ -1,11 +1,20 @@
 import jwt from 'jsonwebtoken';
 import ApiError from '../error/index.js';
 import { Token } from '../models/models.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 class TokenService {
   generateTokens = (payload) => {
-    const accessToken = jwt.sign(payload, 'json_token');
-    const refreshToken = jwt.sign(payload, 'jwt_refresh');
+    const accessToken = jwt.sign(
+      { exp: Math.floor(Date.now() / 1000) + 60 * 6, data: payload },
+      process.env.ACCESSPRIVATKEY,
+    );
+    const refreshToken = jwt.sign(
+      { exp: Math.floor(Date.now() / 1000) + 60 * 60, data: payload },
+      process.env.REFRESHPRIVATKEY,
+    );
+    console.log(jwt.decode(accessToken));
     return {
       accessToken,
       refreshToken,
@@ -14,7 +23,7 @@ class TokenService {
 
   validateAccessToken = (token) => {
     try {
-      const userData = jwt.verify(token, 'json_token');
+      const userData = jwt.verify(token, process.env.ACCESSPRIVATKEY);
       return userData;
     } catch (error) {
       return null;
@@ -23,8 +32,8 @@ class TokenService {
 
   validateRefreshToken = (token) => {
     try {
-      const userData = jwt.verify(token, 'jwt_refresh');
-      return userData;
+      const userData = jwt.verify(token, process.env.REFRESHPRIVATKEY);
+      return { ...userData, ...userData.data };
     } catch (error) {
       return null;
     }

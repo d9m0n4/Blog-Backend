@@ -54,14 +54,16 @@ class UserService {
 
   refreshToken = async (token) => {
     if (!token) {
-      throw ApiError.unauthorized('Пользователь не авторизован');
+      throw ApiError.unauthorized('Пользователь не авторизован1');
     }
 
     const tokenUserData = TokenService.validateRefreshToken(token);
+    console.log('tokenUserData', tokenUserData);
 
-    const tokenFromDB = TokenService.findToken(token);
+    const tokenFromDB = await TokenService.findToken(token);
+    console.log('tokenFromDB', tokenFromDB);
     if (!tokenUserData || !tokenFromDB) {
-      throw ApiError.unauthorized('Пользователь не авторизован');
+      throw ApiError.unauthorized('Пользователь не авторизован2');
     }
 
     const user = await User.findOne({ where: { id: tokenUserData.id } });
