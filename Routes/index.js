@@ -31,6 +31,7 @@ const Routes = () => {
   router.get('/tags', TagsCtrl.getTags);
 
   router.post('/comments', authHandler, CommentsCtrl.createComment);
+  router.get('/comments/user/:id', CommentsCtrl.getUserComments);
 
   return router;
 };
