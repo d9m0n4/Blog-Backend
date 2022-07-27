@@ -127,6 +127,28 @@ class PostService {
 
     return postData;
   };
+
+  likePost = async (userId, id) => {
+    const postData = await Post.findOne({ where: { id } });
+    const postDataLikes = [];
+
+    if (!postData.likes) {
+      postDataLikes.push(userId);
+      postData.likes = postDataLikes;
+      return await postData.save().then((data) => data.likes);
+    }
+    if (postData.likes.includes(userId)) {
+      const filteredData = postData.likes.filter((item) => item !== userId);
+      postData.likes = filteredData;
+      return await postData.save().then((data) => data.likes);
+    } else {
+      postDataLikes.push(userId);
+      postData.likes = [...postData.likes, ...postDataLikes];
+      return await postData.save().then((data) => data.likes);
+    }
+
+    // return postData;
+  };
 }
 
 export default new PostService();

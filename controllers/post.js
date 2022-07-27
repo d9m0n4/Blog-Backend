@@ -58,11 +58,21 @@ class PostController {
   getUserPosts = async (req, res, next) => {
     try {
       const { id } = req.params;
-      console.log(id);
       const userId = req.user;
-      console.log(userId);
       const posts = await post.getUserPosts(id);
       res.json(posts);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  likePost = async (req, res, next) => {
+    try {
+      const { id } = req.body;
+      const user = req.user;
+      console.log(req.body);
+      const likesCount = await post.likePost(user.id, id);
+      res.json(likesCount);
     } catch (error) {
       console.log(error);
       next(error);
