@@ -8,6 +8,8 @@ const User = sequlize.define('user', {
   password: { type: DataTypes.STRING },
   rating: { type: DataTypes.INTEGER, defaultValue: 1 },
   avatar: { type: DataTypes.STRING },
+  city: { type: DataTypes.STRING },
+  nickName: {type: DataTypes.STRING}
 });
 
 const Token = sequlize.define('token', {

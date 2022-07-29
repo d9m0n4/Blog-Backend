@@ -20,6 +20,7 @@ const Routes = () => {
   router.get('/auth/refresh', UserCtrl.refresh);
 
   router.get('/users/', UserCtrl.getUsers);
+  router.post('/users/update', authHandler, UserCtrl.updateUserInfo);
 
   router.post('/posts', authHandler, PostCtrl.create);
   router.post('/posts/like', authHandler, PostCtrl.likePost);

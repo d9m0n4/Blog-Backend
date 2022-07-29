@@ -69,6 +69,29 @@ class UserController {
       next(error);
     }
   };
+  updateUserInfo = async (req, res, next) => {
+    try {
+      const { email, fullName, nickName, city } = req.body;
+      const currentUser = req.user;
+      const file = req.files;
+      let fileName;
+      if (file) {
+        fileName = createFileName(file.img);
+      }
+      const userData = await user.updateUser({
+        userId: currentUser.data.id,
+        avatar: fileName,
+        email,
+        fullName,
+        nickName,
+        city,
+      });
+      console.log(userData);
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  };
 }
 
 export default UserController;

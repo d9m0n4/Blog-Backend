@@ -70,7 +70,6 @@ class PostController {
     try {
       const { id } = req.body;
       const user = req.user;
-      console.log(req.body);
       const likesCount = await post.likePost(user.id, id);
       res.json(likesCount);
     } catch (error) {

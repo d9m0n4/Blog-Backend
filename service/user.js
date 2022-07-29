@@ -93,6 +93,14 @@ class UserService {
 
     return usersData;
   };
+
+  updateUser = async ({ userId, avatar, email, fullName, nickName, city }) => {
+    const userData = await User.update(
+      { avatar, email, fullName, nickName, city },
+      { where: { id: userId } },
+    );
+    return userData;
+  };
 }
 
 export default new UserService();
