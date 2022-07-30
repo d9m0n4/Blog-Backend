@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 import sequlize from '../core/db.js';
 
 const User = sequlize.define('user', {
@@ -8,6 +8,8 @@ const User = sequlize.define('user', {
   password: { type: DataTypes.STRING },
   rating: { type: DataTypes.INTEGER, defaultValue: 1 },
   avatar: { type: DataTypes.STRING },
+  city: { type: DataTypes.STRING },
+  nickName: {type: DataTypes.STRING}
 });
 
 const Token = sequlize.define('token', {
@@ -34,7 +36,7 @@ const Post = sequlize.define('post', {
   },
   previewImage: { type: DataTypes.STRING, allowNull: false },
   viewsCount: { type: DataTypes.INTEGER, defaultValue: 0 },
-  likes: { type: DataTypes.INTEGER, defaultValue: 0 },
+  likes: { type: DataTypes.ARRAY(DataTypes.STRING(1000)), defaultValue: Sequelize.ARRAY },
 });
 
 const Comment = sequlize.define('comment', {

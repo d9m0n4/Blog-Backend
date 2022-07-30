@@ -32,6 +32,7 @@ class UserController {
       });
       res.status(200).json(userData);
     } catch (error) {
+      console.log(error);
       next(error);
     }
   };
@@ -63,6 +64,29 @@ class UserController {
     try {
       const users = await user.getUsers();
       res.json(users);
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  };
+  updateUserInfo = async (req, res, next) => {
+    try {
+      const { email, fullName, nickName, city } = req.body;
+      const currentUser = req.user;
+      const file = req.files;
+      let fileName;
+      if (file) {
+        fileName = createFileName(file.img);
+      }
+      const userData = await user.updateUser({
+        userId: currentUser.data.id,
+        avatar: fileName,
+        email,
+        fullName,
+        nickName,
+        city,
+      });
+      console.log(userData);
     } catch (error) {
       console.log(error);
       next(error);

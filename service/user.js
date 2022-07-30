@@ -54,14 +54,16 @@ class UserService {
 
   refreshToken = async (token) => {
     if (!token) {
-      throw ApiError.unauthorized('Пользователь не авторизован');
+      throw ApiError.unauthorized('Пользователь не авторизован1');
     }
 
     const tokenUserData = TokenService.validateRefreshToken(token);
+    console.log('tokenUserData', tokenUserData);
 
-    const tokenFromDB = TokenService.findToken(token);
+    const tokenFromDB = await TokenService.findToken(token);
+    console.log('tokenFromDB', tokenFromDB);
     if (!tokenUserData || !tokenFromDB) {
-      throw ApiError.unauthorized('Пользователь не авторизован');
+      throw ApiError.unauthorized('Пользователь не авторизован2');
     }
 
     const user = await User.findOne({ where: { id: tokenUserData.id } });
@@ -90,6 +92,14 @@ class UserService {
     const usersData = users.map((user) => new UserDto(user));
 
     return usersData;
+  };
+
+  updateUser = async ({ userId, avatar, email, fullName, nickName, city }) => {
+    const userData = await User.update(
+      { avatar, email, fullName, nickName, city },
+      { where: { id: userId } },
+    );
+    return userData;
   };
 }
 

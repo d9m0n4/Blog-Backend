@@ -23,7 +23,7 @@ class PostController {
 
   getAllPosts = async (req, res, next) => {
     try {
-      const posts = await post.getAllPosts();
+      const posts = await post.getAllPosts(req.query.query);
       res.status(200).json(posts);
     } catch (error) {
       console.log(error);
@@ -49,6 +49,29 @@ class PostController {
       const { tag } = req.params;
       const posts = await post.getPostByTag(tag);
       res.status(200).json(posts);
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  };
+
+  getUserPosts = async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user;
+      const posts = await post.getUserPosts(id);
+      res.json(posts);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  likePost = async (req, res, next) => {
+    try {
+      const { id } = req.body;
+      const user = req.user;
+      const likesCount = await post.likePost(user.id, id);
+      res.json(likesCount);
     } catch (error) {
       console.log(error);
       next(error);
