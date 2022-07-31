@@ -14,7 +14,6 @@ class TokenService {
       { exp: Math.floor(Date.now() / 1000) + 60 * 60, data: payload },
       process.env.REFRESHPRIVATKEY,
     );
-    console.log(jwt.decode(accessToken));
     return {
       accessToken,
       refreshToken,

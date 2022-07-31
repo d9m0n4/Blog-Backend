@@ -5,7 +5,9 @@ import { Comment, Post, User } from '../models/models.js';
 class CommentService {
   createComment = async (userId, postId, comment, file) => {
     const commentData = await Comment.create({ text: comment, files: file, userId, postId });
-    return commentData;
+    const user = await User.findOne({ where: { id: userId } });
+    const f = JSON.parse(JSON.stringify(commentData));
+    return { ...f, user };
   };
   getUserComments = async (userId) => {
     const comments = await Comment.findAll({

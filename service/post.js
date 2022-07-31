@@ -7,7 +7,6 @@ import { Comment, Post, Tag, User } from '../models/models.js';
 class PostService {
   convertePosts = (posts) => {
     return posts.map((post) => {
-      console.log(post);
       const postItem = new PostDto(post);
       const postUser = post.user ? new UserDto(post.user) : null;
       const { items } = post.tags[0];
@@ -65,8 +64,9 @@ class PostService {
         include: [
           { model: Tag, attributes: ['items'] },
           { model: User },
-          { model: Comment, include: { model: User }, order: [['createdAt', 'DESC']] },
+          { model: Comment, include: { model: User } },
         ],
+        order: [[Comment, 'createdAt', 'DESC']],
       });
 
       const parsedPosts = JSON.parse(JSON.stringify(postData));
@@ -75,6 +75,7 @@ class PostService {
       const comments = parsedPosts.comments.map((comment) => {
         return { ...comment, user: new UserDto(comment.user) };
       });
+
       return { ...parsedPosts, tags: items, user, comments };
     } catch (error) {
       throw ApiError.badRequest('Пост не найден', error);

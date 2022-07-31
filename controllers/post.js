@@ -17,6 +17,7 @@ class PostController {
       const postData = await post.create(title, text, tagsArr, userId, fileName);
       res.status(200).json(postData);
     } catch (error) {
+      console.log(error);
       next(error);
     }
   };

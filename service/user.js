@@ -58,10 +58,8 @@ class UserService {
     }
 
     const tokenUserData = TokenService.validateRefreshToken(token);
-    console.log('tokenUserData', tokenUserData);
 
     const tokenFromDB = await TokenService.findToken(token);
-    console.log('tokenFromDB', tokenFromDB);
     if (!tokenUserData || !tokenFromDB) {
       throw ApiError.unauthorized('Пользователь не авторизован2');
     }
@@ -97,9 +95,9 @@ class UserService {
   updateUser = async ({ userId, avatar, email, fullName, nickName, city }) => {
     const userData = await User.update(
       { avatar, email, fullName, nickName, city },
-      { where: { id: userId } },
+      { where: { id: userId }, returning: true, plain: true },
     );
-    return userData;
+    return userData[1];
   };
 }
 

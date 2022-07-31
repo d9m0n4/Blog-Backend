@@ -9,7 +9,7 @@ const User = sequlize.define('user', {
   rating: { type: DataTypes.INTEGER, defaultValue: 1 },
   avatar: { type: DataTypes.STRING },
   city: { type: DataTypes.STRING },
-  nickName: {type: DataTypes.STRING}
+  nickName: { type: DataTypes.STRING },
 });
 
 const Token = sequlize.define('token', {
@@ -36,12 +36,12 @@ const Post = sequlize.define('post', {
   },
   previewImage: { type: DataTypes.STRING, allowNull: false },
   viewsCount: { type: DataTypes.INTEGER, defaultValue: 0 },
-  likes: { type: DataTypes.ARRAY(DataTypes.STRING(1000)), defaultValue: Sequelize.ARRAY },
+  likes: { type: DataTypes.ARRAY(DataTypes.STRING(1000)) },
 });
 
 const Comment = sequlize.define('comment', {
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-  text: { type: DataTypes.STRING },
+  text: { type: DataTypes.STRING(1000) },
   files: { type: DataTypes.ARRAY(DataTypes.STRING) },
 });
 

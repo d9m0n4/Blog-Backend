@@ -15,6 +15,7 @@ class CommentsController {
       const commentData = await commentService.createComment(userId, postId, comment, fileName);
       res.json(commentData);
     } catch (error) {
+      console.log(error);
       next(error);
     }
   };

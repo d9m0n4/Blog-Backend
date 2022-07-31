@@ -1,5 +1,6 @@
 import user from '../service/user.js';
 import { validationResult } from 'express-validator/src/validation-result.js';
+import { createFileName } from '../utils/index.js';
 
 class UserController {
   registration = async (req, res, next) => {
@@ -86,7 +87,7 @@ class UserController {
         nickName,
         city,
       });
-      console.log(userData);
+      res.json(userData);
     } catch (error) {
       console.log(error);
       next(error);
