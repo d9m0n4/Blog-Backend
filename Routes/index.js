@@ -21,6 +21,7 @@ const Routes = () => {
 
   router.get('/users/', UserCtrl.getUsers);
   router.post('/users/update', authHandler, UserCtrl.updateUserInfo);
+  router.get('/users/:id', UserCtrl.getCurrentUser);
 
   router.post('/posts', authHandler, PostCtrl.create);
   router.post('/posts/like', authHandler, PostCtrl.likePost);

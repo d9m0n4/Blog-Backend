@@ -1,5 +1,5 @@
 import ApiError from '../error/index.js';
-import { Post, User } from '../models/models.js';
+import { Post, User, Comment } from '../models/models.js';
 import bcrypt from 'bcrypt';
 import UserDto from '../dtos/userDto.js';
 import TokenService from './token.js';
@@ -98,6 +98,22 @@ class UserService {
       { where: { id: userId }, returning: true, plain: true },
     );
     return userData[1];
+  };
+
+  getCurrentUser = async (id) => {
+    const userData = await User.findOne({
+      where: { id },
+      include: [
+        {
+          model: Comment,
+          include: [{ model: Post }, { model: User }],
+        },
+        {
+          model: Post,
+        },
+      ],
+    });
+    return userData;
   };
 }
 

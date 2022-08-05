@@ -93,6 +93,16 @@ class UserController {
       next(error);
     }
   };
+  getCurrentUser = async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const userData = await user.getCurrentUser(id);
+      res.json(userData);
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  };
 }
 
 export default UserController;
