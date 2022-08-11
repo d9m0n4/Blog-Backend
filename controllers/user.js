@@ -79,6 +79,7 @@ class UserController {
       if (file) {
         fileName = createFileName(file.img);
       }
+
       const userData = await user.updateUser({
         userId: currentUser.data.id,
         avatar: fileName,

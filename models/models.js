@@ -28,7 +28,7 @@ const Post = sequlize.define('post', {
   },
 
   text: {
-    type: DataTypes.STRING(5000),
+    type: DataTypes.STRING(15000),
     allowNull: false,
     validate: {
       notEmpty: true,

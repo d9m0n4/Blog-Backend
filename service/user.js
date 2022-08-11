@@ -97,7 +97,8 @@ class UserService {
       { avatar, email, fullName, nickName, city },
       { where: { id: userId }, returning: true, plain: true },
     );
-    return userData[1];
+    const userDataDto = new UserDto(userData[1]);
+    return userDataDto;
   };
 
   getCurrentUser = async (id) => {
@@ -110,6 +111,7 @@ class UserService {
         },
         {
           model: Post,
+          include: [{ model: Comment }],
         },
       ],
     });
