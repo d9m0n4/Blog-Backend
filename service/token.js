@@ -7,11 +7,11 @@ dotenv.config();
 class TokenService {
   generateTokens = (payload) => {
     const accessToken = jwt.sign(
-      { exp: Math.floor(Date.now() / 1000) + 60 * 6, data: payload },
+      { exp: Math.floor(Date.now() / 1000) + 60 * 60, data: payload },
       process.env.ACCESSPRIVATKEY,
     );
     const refreshToken = jwt.sign(
-      { exp: Math.floor(Date.now() / 1000) + 60 * 60, data: payload },
+      { exp: Math.floor(Date.now() / 1000) + 60 * 600, data: payload },
       process.env.REFRESHPRIVATKEY,
     );
     return {
