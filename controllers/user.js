@@ -73,15 +73,17 @@ class UserController {
   updateUserInfo = async (req, res, next) => {
     try {
       const { email, fullName, nickName, city } = req.body;
-      const currentUser = req.user;
+      const { id } = req.user;
       const file = req.files;
       let fileName;
       if (file) {
         fileName = createFileName(file.img);
       }
 
+      console.log(user);
+
       const userData = await user.updateUser({
-        userId: currentUser.data.id,
+        userId: id,
         avatar: fileName,
         email,
         fullName,

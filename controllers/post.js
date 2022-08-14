@@ -10,12 +10,15 @@ class PostController {
       const file = req.files;
       const tagsArr = tags.split(',').map((i) => i.trim().toLowerCase());
 
-      let fileName;
-      if (file) {
-        fileName = createFileName(file.img);
-      }
-      const postData = await post.create(title, text, tagsArr, userId, fileName);
-      res.status(200).json(postData);
+      // let fileName;
+      // if (file) {
+      //   fileName = createFileName(file.img);
+      // }
+      // const postData = await post.create(title, text, tagsArr, userId, fileName);
+      // res.status(200).json(postData);
+
+      const match = text.split(/(?<=\[).*(?=\])/);
+      console.log(match, file);
     } catch (error) {
       console.log(error);
       next(error);
