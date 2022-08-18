@@ -1,6 +1,7 @@
 import user from '../service/user.js';
 import { validationResult } from 'express-validator/src/validation-result.js';
 import { createFileName } from '../utils/index.js';
+import uploadFile from '../service/uploadFile.js';
 
 class UserController {
   registration = async (req, res, next) => {
@@ -80,15 +81,19 @@ class UserController {
         fileName = createFileName(file.img);
       }
 
-      const userData = await user.updateUser({
-        userId: currentUser.data.id,
-        avatar: fileName,
-        email,
-        fullName,
-        nickName,
-        city,
-      });
-      res.json(userData);
+      const fileUrl = await uploadFile.upload(file.img);
+
+      console.log(fileUrl);
+
+      // const userData = await user.updateUser({
+      //   userId: currentUser.data.id,
+      //   avatar: fileName,
+      //   email,
+      //   fullName,
+      //   nickName,
+      //   city,
+      // });
+      // res.json(userData);
     } catch (error) {
       console.log(error);
       next(error);
