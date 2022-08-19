@@ -76,24 +76,18 @@ class UserController {
       const { email, fullName, nickName, city } = req.body;
       const currentUser = req.user;
       const file = req.files;
-      let fileName;
-      if (file) {
-        fileName = createFileName(file.img);
-      }
 
       const fileUrl = await uploadFile.upload(file.img);
 
-      console.log(fileUrl);
-
-      // const userData = await user.updateUser({
-      //   userId: currentUser.data.id,
-      //   avatar: fileName,
-      //   email,
-      //   fullName,
-      //   nickName,
-      //   city,
-      // });
-      // res.json(userData);
+      const userData = await user.updateUser({
+        userId: currentUser.data.id,
+        avatar: fileUrl.url,
+        email,
+        fullName,
+        nickName,
+        city,
+      });
+      res.json(userData);
     } catch (error) {
       console.log(error);
       next(error);

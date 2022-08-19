@@ -5,6 +5,7 @@ import UserController from '../controllers/user.js';
 import { registerValidation } from '../validations/auth.js';
 import CommentsController from '../controllers/comments.js';
 import authHandler from '../middleware/authHandler.js';
+import UploadController from '../controllers/upload.js';
 
 const router = new Router();
 
@@ -13,6 +14,7 @@ const Routes = () => {
   const PostCtrl = new PostController();
   const TagsCtrl = new TagsController();
   const CommentsCtrl = new CommentsController();
+  const UploadCtrl = new UploadController();
 
   router.post('/auth/registration', registerValidation, UserCtrl.registration);
   router.post('/auth/login', registerValidation, UserCtrl.login);
@@ -35,6 +37,8 @@ const Routes = () => {
 
   router.post('/comments', authHandler, CommentsCtrl.createComment);
   router.get('/comments/user/:id', CommentsCtrl.getUserComments);
+
+  router.post('/upload', authHandler, UploadCtrl.uploadFiles);
 
   return router;
 };
