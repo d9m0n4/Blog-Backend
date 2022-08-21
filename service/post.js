@@ -120,14 +120,15 @@ class PostService {
     return this.convertePosts(parsedPosts);
   };
 
-  updatePosts = async (title, text, id, filename, tags) => {
+  updatePosts = async (title, text, id, fileName, tagsArr) => {
     const postData = await Post.update(
-      { title, text, previewImage: filename },
+      { title, text, previewImage: fileName },
       { where: { id }, returning: true },
     );
-    await Tag.update({ items: tags }, { where: { postId: id } });
+    await Tag.update({ items: tagsArr }, { where: { postId: id } });
+    const parsedData = JSON.parse(JSON.stringify(...postData[1]));
 
-    return postData;
+    return parsedData;
   };
 
   likePost = async (userId, id) => {
@@ -148,8 +149,6 @@ class PostService {
       postData.likes = [...postData.likes, ...postDataLikes];
       return await postData.save().then((data) => data.likes);
     }
-
-    // return postData;
   };
 }
 

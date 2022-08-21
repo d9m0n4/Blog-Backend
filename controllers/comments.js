@@ -1,21 +1,29 @@
-import { createFileName } from '../utils/index.js';
 import commentService from '../service/comment.js';
+import uploadFile from '../service/uploadFile.js';
 
 class CommentsController {
   createComment = async (req, res, next) => {
     try {
       const { userId, postId, comment } = req.body;
-      const files = req.files;
-      const filesArray = [];
+      const { files } = req;
+      const fileNames = [];
+
       if (files) {
-        files.file.length ? filesArray.push(...files.file) : filesArray.push(files.file);
+        const { file } = files;
+        if (Array.isArray(file)) {
+          for (const item of file) {
+            const result = await uploadFile.upload(item);
+            fileNames.push(result);
+          }
+        } else {
+          const result = await uploadFile.upload(file);
+          fileNames.push(result);
+        }
       }
 
-      const fileName = filesArray ? filesArray.map((file) => createFileName(file)) : null;
-      const commentData = await commentService.createComment(userId, postId, comment, fileName);
+      const commentData = await commentService.createComment(userId, postId, comment, fileNames);
       res.json(commentData);
     } catch (error) {
-      console.log(error);
       next(error);
     }
   };

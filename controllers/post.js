@@ -1,7 +1,6 @@
 import ApiError from '../error/index.js';
 import post from '../service/post.js';
-
-import { createFileName } from '../utils/index.js';
+import uploadFile from '../service/uploadFile.js';
 
 class PostController {
   create = async (req, res, next) => {
@@ -10,17 +9,11 @@ class PostController {
       const file = req.files;
       const tagsArr = tags.split(',').map((i) => i.trim().toLowerCase());
 
-      // let fileName;
-      // if (file) {
-      //   fileName = createFileName(file.img);
-      // }
-      // const postData = await post.create(title, text, tagsArr, userId, fileName);
-      // res.status(200).json(postData);
+      const fileName = file ? await uploadFile.upload(file.img) : null;
 
-      const match = text.split(/(?<=\[).*(?=\])/);
-      console.log(match, file);
+      const postData = await post.create(title, text, tagsArr, userId, fileName);
+      res.status(200).json(postData);
     } catch (error) {
-      console.log(error);
       next(error);
     }
   };
@@ -30,7 +23,6 @@ class PostController {
       const posts = await post.getAllPosts(req.query.query);
       res.status(200).json(posts);
     } catch (error) {
-      console.log(error);
       next(error);
     }
   };
@@ -44,7 +36,6 @@ class PostController {
       const postData = await post.getPostById(id);
       res.json(postData);
     } catch (error) {
-      console.log(error);
       next(error);
     }
   };
@@ -54,7 +45,6 @@ class PostController {
       const posts = await post.getPostByTag(tag);
       res.status(200).json(posts);
     } catch (error) {
-      console.log(error);
       next(error);
     }
   };
@@ -77,22 +67,26 @@ class PostController {
       const likesCount = await post.likePost(user.id, id);
       res.json(likesCount);
     } catch (error) {
-      console.log(error);
       next(error);
     }
   };
 
   updatePost = async (req, res, next) => {
     try {
-      const { title, tags, text } = req.body;
+      const { title, tags, text, previewImage, id: postId, userId } = req.body;
       const { id } = req.params;
       const file = req.files;
-      let filename;
-      if (file) {
-        filename = this.fileName(file.img);
+      const user = req.user;
+
+      if (id !== postId || user.id !== userId) {
+        return next(ApiError.badRequest('Пост не найден'));
       }
 
-      const postData = await post.updatePosts(title, text, id, filename, tags);
+      const tagsArr = tags.split(',').map((i) => i.trim().toLowerCase());
+
+      const fileName = file ? await uploadFile.upload(file.img) : previewImage;
+
+      const postData = await post.updatePosts(title, text, id, fileName, tagsArr);
       res.json(postData);
     } catch (error) {
       next(error);

@@ -21,7 +21,6 @@ export default function (req, res, next) {
     req.user = userData;
     next();
   } catch (error) {
-    console.log(error);
     return ApiError.unauthorized('Пользователь не авторизован');
   }
 }

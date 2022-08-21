@@ -1,6 +1,7 @@
 import user from '../service/user.js';
 import { validationResult } from 'express-validator/src/validation-result.js';
 import { createFileName } from '../utils/index.js';
+import uploadFile from '../service/uploadFile.js';
 
 class UserController {
   registration = async (req, res, next) => {
@@ -33,7 +34,6 @@ class UserController {
       });
       res.status(200).json(userData);
     } catch (error) {
-      console.log(error);
       next(error);
     }
   };
@@ -57,7 +57,6 @@ class UserController {
       });
       res.status(200).json(userData);
     } catch (error) {
-      console.log(error);
       next(error);
     }
   };
@@ -66,7 +65,6 @@ class UserController {
       const users = await user.getUsers();
       res.json(users);
     } catch (error) {
-      console.log(error);
       next(error);
     }
   };
@@ -75,16 +73,12 @@ class UserController {
       const { email, fullName, nickName, city } = req.body;
       const { id } = req.user;
       const file = req.files;
-      let fileName;
-      if (file) {
-        fileName = createFileName(file.img);
-      }
 
-      console.log(user);
+      const fileUrl = file ? await uploadFile.upload(file.img) : null;
 
       const userData = await user.updateUser({
         userId: id,
-        avatar: fileName,
+        avatar: fileUrl,
         email,
         fullName,
         nickName,
@@ -92,7 +86,6 @@ class UserController {
       });
       res.json(userData);
     } catch (error) {
-      console.log(error);
       next(error);
     }
   };
@@ -102,7 +95,6 @@ class UserController {
       const userData = await user.getCurrentUser(id);
       res.json(userData);
     } catch (error) {
-      console.log(error);
       next(error);
     }
   };
