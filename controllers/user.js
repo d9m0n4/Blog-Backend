@@ -70,11 +70,11 @@ class UserController {
   };
   updateUserInfo = async (req, res, next) => {
     try {
-      const { email, fullName, nickName, city } = req.body;
+      const { email, fullName, nickName, city, avatar } = req.body;
       const { id } = req.user;
       const file = req.files;
 
-      const fileUrl = file ? await uploadFile.upload(file.img) : null;
+      const fileUrl = file ? await uploadFile.upload(file.img) : avatar;
 
       const userData = await user.updateUser({
         userId: id,
