@@ -11,7 +11,7 @@ class PostController {
 
       const fileName = file ? await uploadFile.upload(file.img) : null;
 
-      const postData = await post.create(title, text, tagsArr, userId, fileName);
+      const postData = await post.create({ title, text, tagsArr, userId, fileName: fileName.url });
       res.status(200).json(postData);
     } catch (error) {
       next(error);
@@ -86,8 +86,18 @@ class PostController {
 
       const fileName = file ? await uploadFile.upload(file.img) : previewImage;
 
-      const postData = await post.updatePosts(title, text, id, fileName, tagsArr);
+      const postData = await post.updatePosts({ title, text, id, fileName: fileName.url, tagsArr });
       res.json(postData);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  deletePost = async (req, res, next) => {
+    try {
+      const { id } = req.body;
+      const result = await post.deletePost(id);
+      res.json(result);
     } catch (error) {
       next(error);
     }

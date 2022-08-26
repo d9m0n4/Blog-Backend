@@ -8,7 +8,15 @@ class UploadFile {
           if (error || !result) {
             reject(error);
           } else {
-            resolve(result.url);
+            resolve({
+              ...result,
+              thumb: cloudinary.url(result.public_id, {
+                width: 300,
+                quality: 'auto',
+                fetch_format: 'auto',
+                crop: 'scale',
+              }),
+            });
           }
         })
         .end(file.data);

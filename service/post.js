@@ -17,7 +17,7 @@ class PostService {
     });
   };
 
-  create = async (title, text, tagsArr, userId, fileName) => {
+  create = async ({ title, text, tagsArr, userId, fileName }) => {
     try {
       const post = await Post.create({ title, text, userId, previewImage: fileName });
       await Tag.create({ items: tagsArr, postId: post.id });
@@ -120,7 +120,7 @@ class PostService {
     return this.convertePosts(parsedPosts);
   };
 
-  updatePosts = async (title, text, id, fileName, tagsArr) => {
+  updatePosts = async ({ title, text, id, fileName, tagsArr }) => {
     const postData = await Post.update(
       { title, text, previewImage: fileName },
       { where: { id }, returning: true },
@@ -149,6 +149,15 @@ class PostService {
       postData.likes = [...postData.likes, ...postDataLikes];
       return await postData.save().then((data) => data.likes);
     }
+  };
+
+  deletePost = async (id) => {
+    const tags = await Tag.destroy({ where: { postId: id } });
+    const post = await Post.destroy({ where: { id } });
+    if (post && tags) {
+      return post;
+    }
+    throw ApiError.badRequest('Не удалось удалить пост');
   };
 }
 

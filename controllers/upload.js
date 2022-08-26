@@ -5,7 +5,7 @@ class UploadController {
     try {
       const file = req.files;
       const fileData = await uploadFile.upload(file.img);
-      res.json({ url: fileData });
+      res.json({ url: fileData.url });
     } catch (error) {
       next(error);
     }

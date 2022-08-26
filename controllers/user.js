@@ -74,11 +74,11 @@ class UserController {
       const { id } = req.user;
       const file = req.files;
 
-      const fileUrl = file ? await uploadFile.upload(file.img) : avatar;
+      const fileData = file ? await uploadFile.upload(file.img) : avatar;
 
       const userData = await user.updateUser({
         userId: id,
-        avatar: fileUrl,
+        avatar: fileData.url,
         email,
         fullName,
         nickName,

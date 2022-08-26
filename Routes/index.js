@@ -32,6 +32,7 @@ const Routes = () => {
   router.get('/posts/user/:id', PostCtrl.getUserPosts);
   router.get('/posts/tags/:tag', PostCtrl.getPostByTag);
   router.post('/posts/edit/:id', authHandler, PostCtrl.updatePost);
+  router.post('/posts/delete', authHandler, PostCtrl.deletePost);
 
   router.get('/tags', TagsCtrl.getTags);
 
