@@ -9,9 +9,15 @@ class PostController {
       const file = req.files;
       const tagsArr = tags.split(',').map((i) => i.trim().toLowerCase());
 
-      const fileName = file ? await uploadFile.upload(file.img) : null;
+      const uploadedFile = file ? await uploadFile.upload(file.img) : null;
 
-      const postData = await post.create({ title, text, tagsArr, userId, fileName: fileName.url });
+      const postData = await post.create({
+        title,
+        text,
+        tagsArr,
+        userId,
+        fileName: uploadedFile.id,
+      });
       res.status(200).json(postData);
     } catch (error) {
       next(error);
@@ -20,9 +26,10 @@ class PostController {
 
   getAllPosts = async (req, res, next) => {
     try {
-      const posts = await post.getAllPosts(req.query.query);
+      const posts = await post.getAllPosts(req.query);
       res.status(200).json(posts);
     } catch (error) {
+      console.log(error);
       next(error);
     }
   };
@@ -86,7 +93,7 @@ class PostController {
 
       const fileName = file ? await uploadFile.upload(file.img) : previewImage;
 
-      const postData = await post.updatePosts({ title, text, id, fileName: fileName.url, tagsArr });
+      const postData = await post.updatePosts({ title, text, id, fileName: fileName.id, tagsArr });
       res.json(postData);
     } catch (error) {
       next(error);

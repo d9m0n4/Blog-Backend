@@ -42,7 +42,7 @@ class UserController {
       const { refreshToken } = req.cookies;
       await user.logout(refreshToken);
       res.clearCookie('refreshToken');
-      res.status(200);
+      res.status(200).json('ok');
     } catch (error) {
       next(error);
     }
@@ -78,7 +78,7 @@ class UserController {
 
       const userData = await user.updateUser({
         userId: id,
-        avatar: fileData.url,
+        avatar: fileData.id,
         email,
         fullName,
         nickName,
@@ -95,6 +95,7 @@ class UserController {
       const userData = await user.getCurrentUser(id);
       res.json(userData);
     } catch (error) {
+      console.log(error);
       next(error);
     }
   };

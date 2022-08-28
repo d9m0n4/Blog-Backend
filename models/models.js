@@ -7,14 +7,13 @@ const User = sequlize.define('user', {
   email: { type: DataTypes.STRING, unique: true },
   password: { type: DataTypes.STRING },
   rating: { type: DataTypes.INTEGER, defaultValue: 1 },
-  avatar: { type: DataTypes.STRING },
   city: { type: DataTypes.STRING },
   nickName: { type: DataTypes.STRING },
 });
 
 const Token = sequlize.define('token', {
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-  refreshToken: { type: DataTypes.STRING(1000) },
+  refreshToken: { type: DataTypes.STRING(5000) },
 });
 
 const Post = sequlize.define('post', {
@@ -34,7 +33,7 @@ const Post = sequlize.define('post', {
       notEmpty: true,
     },
   },
-  previewImage: { type: DataTypes.STRING, allowNull: false },
+
   viewsCount: { type: DataTypes.INTEGER, defaultValue: 0 },
   likes: { type: DataTypes.ARRAY(DataTypes.STRING(1000)) },
 });
@@ -42,7 +41,6 @@ const Post = sequlize.define('post', {
 const Comment = sequlize.define('comment', {
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   text: { type: DataTypes.STRING(1000) },
-  files: { type: DataTypes.ARRAY(DataTypes.STRING) },
 });
 
 const Tag = sequlize.define('tag', {
@@ -50,7 +48,15 @@ const Tag = sequlize.define('tag', {
   items: { type: DataTypes.ARRAY(DataTypes.STRING) },
 });
 
-Token.hasMany(User);
+const File = sequlize.define('file', {
+  id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+  url: { type: DataTypes.STRING },
+  thumb: { type: DataTypes.STRING },
+  public_id: { type: DataTypes.STRING },
+  format: { type: DataTypes.STRING },
+});
+
+User.hasMany(Token);
 Token.belongsTo(User);
 
 User.hasMany(Post, {
@@ -74,4 +80,13 @@ Comment.belongsTo(Post);
 User.hasMany(Comment);
 Comment.belongsTo(User);
 
-export { User, Tag, Post, Comment, Token };
+File.hasOne(Post);
+Post.belongsTo(File, { as: 'previewImage' });
+
+File.hasOne(User);
+User.belongsTo(File, { as: 'avatar' });
+
+File.hasMany(Comment);
+Comment.belongsTo(File, { as: 'assets' });
+
+export { User, Tag, Post, Comment, Token, File };

@@ -2,7 +2,7 @@ import { Op } from 'sequelize';
 import PostDto from '../dtos/postDto.js';
 import UserDto from '../dtos/userDto.js';
 import ApiError from '../error/index.js';
-import { Comment, Post, Tag, User } from '../models/models.js';
+import { Comment, File, Post, Tag, User } from '../models/models.js';
 
 class PostService {
   convertePosts = (posts) => {
@@ -19,7 +19,7 @@ class PostService {
 
   create = async ({ title, text, tagsArr, userId, fileName }) => {
     try {
-      const post = await Post.create({ title, text, userId, previewImage: fileName });
+      const post = await Post.create({ title, text, userId, previewImageId: fileName });
       await Tag.create({ items: tagsArr, postId: post.id });
       await User.increment('rating', { by: 1, where: { id: userId } });
 
@@ -30,29 +30,39 @@ class PostService {
   };
 
   getAllPosts = async (query) => {
+    console.log(query.search);
     let whereOption = {};
-    if (query) {
+    if (query.search) {
       whereOption = {
         title: {
-          [Op.iLike]: `%${query}%`,
+          [Op.iLike]: `%${query.search}%`,
         },
       };
     }
 
-    const posts = await Post.findAll({
+    let page = query.page ? query.page - 1 : 0;
+    page = page < 0 ? 0 : page;
+    let limit = parseInt(query.limit || 10);
+    limit = limit < 0 ? 10 : limit;
+    const offset = page * limit;
+
+    const posts = await Post.findAndCountAll({
       where: whereOption,
       nest: true,
       include: [
         { model: Tag, attributes: ['items'] },
         { model: User, nested: true },
         { model: Comment, include: { model: User } },
+        { model: File, nested: true, as: 'previewImage' },
       ],
       order: [['createdAt', 'DESC']],
+      limit: limit,
+      offset: offset,
     });
 
     const parsedPosts = JSON.parse(JSON.stringify(posts));
-
-    return this.convertePosts(parsedPosts);
+    const convertedPosts = this.convertePosts([...parsedPosts.rows]);
+    return { posts: convertedPosts, count: parsedPosts.count };
   };
 
   getPostById = async (id) => {
@@ -63,8 +73,15 @@ class PostService {
         nest: true,
         include: [
           { model: Tag, attributes: ['items'] },
-          { model: User },
-          { model: Comment, include: { model: User } },
+          { model: User, include: { model: File, as: 'avatar' } },
+          {
+            model: Comment,
+            include: [
+              { model: User, include: { model: File, as: 'avatar' } },
+              { model: File, as: 'assets' },
+            ],
+          },
+          { model: File, nested: true, as: 'previewImage' },
         ],
         order: [[Comment, 'createdAt', 'DESC']],
       });
@@ -92,8 +109,9 @@ class PostService {
             attributes: ['items'],
             where: { items: { [Op.contains]: [tag] } },
           },
-          { model: User },
+          { model: User, include: { model: File, as: 'avatar', nested: true } },
           { model: Comment, include: { model: User } },
+          { model: File, nested: true, as: 'previewImage' },
         ],
       });
       const parsedPosts = JSON.parse(JSON.stringify(posts));
@@ -114,6 +132,7 @@ class PostService {
         },
 
         { model: Comment, include: { model: User } },
+        { model: File, nested: true, as: 'previewImage' },
       ],
     });
     const parsedPosts = JSON.parse(JSON.stringify(posts));
@@ -122,7 +141,7 @@ class PostService {
 
   updatePosts = async ({ title, text, id, fileName, tagsArr }) => {
     const postData = await Post.update(
-      { title, text, previewImage: fileName },
+      { title, text, previewImageId: fileName },
       { where: { id }, returning: true },
     );
     await Tag.update({ items: tagsArr }, { where: { postId: id } });

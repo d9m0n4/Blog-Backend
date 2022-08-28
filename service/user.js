@@ -1,5 +1,5 @@
 import ApiError from '../error/index.js';
-import { Post, User, Comment } from '../models/models.js';
+import { Post, User, Comment, File } from '../models/models.js';
 import bcrypt from 'bcrypt';
 import UserDto from '../dtos/userDto.js';
 import TokenService from './token.js';
@@ -30,7 +30,10 @@ class UserService {
   };
 
   login = async (email, password) => {
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({
+      where: { email },
+      include: [{ model: File, nested: true, as: 'avatar' }],
+    });
 
     if (!user) {
       throw ApiError.notFound('Пользователь с таким email не найден');
@@ -64,7 +67,10 @@ class UserService {
       throw ApiError.unauthorized('Пользователь не авторизован2');
     }
 
-    const user = await User.findOne({ where: { id: tokenUserData.id } });
+    const user = await User.findOne({
+      where: { id: tokenUserData.id },
+      include: [{ model: File, nested: true, as: 'avatar' }],
+    });
     const userData = new UserDto(user);
     const tokens = TokenService.generateTokens({ ...tokenUserData });
     await TokenService.saveToken(tokenUserData.id, tokens.refreshToken);
@@ -81,6 +87,7 @@ class UserService {
           [Op.or]: postsUsers,
         },
       },
+      include: [{ model: File, nested: true, as: 'avatar' }],
       order: [['rating', 'DESC']],
       limit: 5,
     });
@@ -94,28 +101,36 @@ class UserService {
 
   updateUser = async ({ userId, avatar, email, fullName, nickName, city }) => {
     const userData = await User.update(
-      { avatar, email, fullName, nickName, city },
-      { where: { id: userId }, returning: true, plain: true },
+      { avatarId: avatar, email, fullName, nickName, city },
+      {
+        where: { id: userId },
+      },
     );
-    const userDataDto = new UserDto(userData[1]);
-    return userDataDto;
+
+    return userData;
   };
 
   getCurrentUser = async (id) => {
     const userData = await User.findOne({
       where: { id },
+      nest: true,
+
       include: [
         {
           model: Comment,
-          include: [{ model: Post }, { model: User }],
+          include: [{ model: Post }, { model: User, include: { model: File, as: 'avatar' } }],
         },
         {
           model: Post,
-          include: [{ model: Comment }],
+          include: [{ model: Comment }, { model: File, as: 'previewImage' }],
         },
+        { model: File, nested: true, as: 'avatar' },
       ],
     });
-    return userData;
+
+    const data = JSON.parse(JSON.stringify(userData));
+    const user = new UserDto(data);
+    return { ...user, comments: data.comments, posts: data.posts };
   };
 }
 

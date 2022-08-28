@@ -1,10 +1,10 @@
 import PostDto from '../dtos/postDto.js';
 import UserDto from '../dtos/userDto.js';
-import { Comment, Post, User } from '../models/models.js';
+import { Comment, File, Post, User } from '../models/models.js';
 
 class CommentService {
   createComment = async (userId, postId, comment, file) => {
-    const commentData = await Comment.create({ text: comment, files: file, userId, postId });
+    const commentData = await Comment.create({ text: comment, assetsId: file, userId, postId });
     const user = await User.findOne({ where: { id: userId } });
     const f = JSON.parse(JSON.stringify(commentData));
     return { ...f, user };
@@ -13,7 +13,10 @@ class CommentService {
     const comments = await Comment.findAll({
       where: { userId },
       nest: true,
-      include: [{ model: Post }, { model: User }],
+      include: [
+        { model: Post },
+        { model: User, include: { model: File, as: 'avatar', nested: true } },
+      ],
       order: [['createdAt', 'DESC']],
     });
     const parsedData = JSON.parse(JSON.stringify(comments));
@@ -24,6 +27,7 @@ class CommentService {
 
       return { ...comment, post: commentPost, user: commentUser };
     });
+    console.log(comments);
     return readyComments;
   };
 }

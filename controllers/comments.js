@@ -13,11 +13,11 @@ class CommentsController {
         if (Array.isArray(file)) {
           for (const item of file) {
             const result = await uploadFile.upload(item);
-            fileNames.push(result.url);
+            fileNames.push(result.id);
           }
         } else {
           const result = await uploadFile.upload(file);
-          fileNames.push(result.url);
+          fileNames.push(result.id);
         }
       }
 
