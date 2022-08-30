@@ -6,6 +6,9 @@ class PostController {
   create = async (req, res, next) => {
     try {
       const { title, tags, text, userId } = req.body;
+      if (!title || !text) {
+        next(ApiError.badRequest('Не заполнены обязательные поля'));
+      }
       const file = req.files;
       const tagsArr = tags.split(',').map((i) => i.trim().toLowerCase());
 
@@ -16,10 +19,11 @@ class PostController {
         text,
         tagsArr,
         userId,
-        fileName: uploadedFile.id,
+        file: uploadedFile,
       });
       res.status(200).json(postData);
     } catch (error) {
+      console.log(error);
       next(error);
     }
   };
@@ -80,22 +84,25 @@ class PostController {
 
   updatePost = async (req, res, next) => {
     try {
-      const { title, tags, text, previewImage, id: postId, userId } = req.body;
+      const { title, tags, text, previewImage, id: postId, user } = req.body;
       const { id } = req.params;
       const file = req.files;
-      const user = req.user;
+      const currentUser = req.user;
 
-      if (id !== postId || user.id !== userId) {
+      console.log();
+
+      if (id !== postId || user.id !== currentUser.id) {
         return next(ApiError.badRequest('Пост не найден'));
       }
 
       const tagsArr = tags.split(',').map((i) => i.trim().toLowerCase());
 
-      const fileName = file ? await uploadFile.upload(file.img) : previewImage;
+      const uploadedFile = file ? await uploadFile.upload(file.img) : previewImage;
 
-      const postData = await post.updatePosts({ title, text, id, fileName: fileName.id, tagsArr });
+      const postData = await post.updatePosts({ title, text, id, uploadedFile, tagsArr });
       res.json(postData);
     } catch (error) {
+      console.log(error);
       next(error);
     }
   };

@@ -34,6 +34,7 @@ class UserController {
       });
       res.status(200).json(userData);
     } catch (error) {
+      console.log(error);
       next(error);
     }
   };
@@ -74,11 +75,11 @@ class UserController {
       const { id } = req.user;
       const file = req.files;
 
-      const fileData = file ? await uploadFile.upload(file.img) : avatar;
+      const uploadedFile = file ? await uploadFile.upload(file.img) : avatar;
 
       const userData = await user.updateUser({
         userId: id,
-        avatar: fileData.id,
+        avatar: uploadedFile,
         email,
         fullName,
         nickName,
@@ -86,6 +87,7 @@ class UserController {
       });
       res.json(userData);
     } catch (error) {
+      console.log(error);
       next(error);
     }
   };

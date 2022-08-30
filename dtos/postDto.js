@@ -19,7 +19,7 @@ class PostDto {
     this.likes = model.likes;
     this.viewsCount = model.viewsCount;
     this.comments = model.comments;
-    this.previewImage = model.previewImage;
+    this.previewImage = model.file;
     this.createdAt = model.createdAt;
   }
 }

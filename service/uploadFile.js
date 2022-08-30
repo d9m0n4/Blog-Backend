@@ -18,14 +18,8 @@ class UploadFile {
                 crop: 'scale',
               }),
             };
-            const file = File.create({
-              url: uploadResult.secure_url,
-              thumb: uploadResult.thumb,
-              public_id: uploadResult.public_id,
-              format: uploadResult.format,
-            });
 
-            resolve(file);
+            resolve(uploadResult);
           }
         })
         .end(file.data);

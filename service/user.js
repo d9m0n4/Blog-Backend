@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import UserDto from '../dtos/userDto.js';
 import TokenService from './token.js';
 import { Op } from 'sequelize';
+import PostDto from '../dtos/postDto.js';
 
 class UserService {
   registration = async (email, password, fullName) => {
@@ -32,7 +33,7 @@ class UserService {
   login = async (email, password) => {
     const user = await User.findOne({
       where: { email },
-      include: [{ model: File, nested: true, as: 'avatar' }],
+      include: [{ model: File, nested: true }],
     });
 
     if (!user) {
@@ -69,7 +70,7 @@ class UserService {
 
     const user = await User.findOne({
       where: { id: tokenUserData.id },
-      include: [{ model: File, nested: true, as: 'avatar' }],
+      include: [{ model: File, nested: true }],
     });
     const userData = new UserDto(user);
     const tokens = TokenService.generateTokens({ ...tokenUserData });
@@ -87,7 +88,7 @@ class UserService {
           [Op.or]: postsUsers,
         },
       },
-      include: [{ model: File, nested: true, as: 'avatar' }],
+      include: [{ model: File, nested: true }],
       order: [['rating', 'DESC']],
       limit: 5,
     });
@@ -101,13 +102,26 @@ class UserService {
 
   updateUser = async ({ userId, avatar, email, fullName, nickName, city }) => {
     const userData = await User.update(
-      { avatarId: avatar, email, fullName, nickName, city },
+      { email, fullName, nickName, city },
       {
         where: { id: userId },
+        returning: true,
       },
     );
 
-    return userData;
+    const avatarFromDB = await File.findOne({ where: { userId } });
+
+    if (avatarFromDB) {
+      await File.update({ ...avatar }, { where: { userId } });
+    } else {
+      await File.create({ ...avatar, userId });
+    }
+
+    const plainedUserData = userData[1][0].get();
+    const userAvatar = await File.findOne({ where: { userId } });
+    const user = { ...plainedUserData, file: userAvatar };
+    const data = new UserDto(user);
+    return data;
   };
 
   getCurrentUser = async (id) => {
@@ -118,19 +132,20 @@ class UserService {
       include: [
         {
           model: Comment,
-          include: [{ model: Post }, { model: User, include: { model: File, as: 'avatar' } }],
+          include: [{ model: Post }, { model: User, include: { model: File } }],
         },
         {
           model: Post,
-          include: [{ model: Comment }, { model: File, as: 'previewImage' }],
+          include: [{ model: Comment }, { model: File }],
         },
-        { model: File, nested: true, as: 'avatar' },
+        { model: File, nested: true, attributes: ['url', 'thumb'] },
       ],
     });
 
     const data = JSON.parse(JSON.stringify(userData));
     const user = new UserDto(data);
-    return { ...user, comments: data.comments, posts: data.posts };
+    const userPosts = data.posts.map((postItem) => new PostDto(postItem));
+    return { ...user, comments: data.comments, posts: userPosts };
   };
 }
 

@@ -4,7 +4,12 @@ import { Comment, File, Post, User } from '../models/models.js';
 
 class CommentService {
   createComment = async (userId, postId, comment, file) => {
-    const commentData = await Comment.create({ text: comment, assetsId: file, userId, postId });
+    const commentData = await Comment.create({
+      text: comment,
+      assetsId: file ? file : null,
+      userId,
+      postId,
+    });
     const user = await User.findOne({ where: { id: userId } });
     const f = JSON.parse(JSON.stringify(commentData));
     return { ...f, user };

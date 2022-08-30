@@ -80,13 +80,13 @@ Comment.belongsTo(Post);
 User.hasMany(Comment);
 Comment.belongsTo(User);
 
-File.hasOne(Post);
-Post.belongsTo(File, { as: 'previewImage' });
+Post.hasOne(File);
+File.belongsTo(Post);
 
-File.hasOne(User);
-User.belongsTo(File, { as: 'avatar' });
+User.hasOne(File);
+File.belongsTo(User);
 
-File.hasMany(Comment);
-Comment.belongsTo(File, { as: 'assets' });
+Comment.hasMany(File);
+File.belongsTo(Comment);
 
 export { User, Tag, Post, Comment, Token, File };

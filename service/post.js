@@ -3,6 +3,7 @@ import PostDto from '../dtos/postDto.js';
 import UserDto from '../dtos/userDto.js';
 import ApiError from '../error/index.js';
 import { Comment, File, Post, Tag, User } from '../models/models.js';
+import uploadFile from './uploadFile.js';
 
 class PostService {
   convertePosts = (posts) => {
@@ -17,10 +18,24 @@ class PostService {
     });
   };
 
-  create = async ({ title, text, tagsArr, userId, fileName }) => {
+  create = async ({ title, text, tagsArr, userId, file }) => {
     try {
-      const post = await Post.create({ title, text, userId, previewImageId: fileName });
+      const post = await Post.create({
+        title,
+        text,
+        userId,
+      });
+
       await Tag.create({ items: tagsArr, postId: post.id });
+
+      if (file) {
+        const postFile = await File.create({
+          ...file,
+          postId: post.id,
+        });
+        console.log(postFile);
+      }
+
       await User.increment('rating', { by: 1, where: { id: userId } });
 
       return { id: post.id };
@@ -30,7 +45,6 @@ class PostService {
   };
 
   getAllPosts = async (query) => {
-    console.log(query.search);
     let whereOption = {};
     if (query.search) {
       whereOption = {
@@ -53,7 +67,7 @@ class PostService {
         { model: Tag, attributes: ['items'] },
         { model: User, nested: true },
         { model: Comment, include: { model: User } },
-        { model: File, nested: true, as: 'previewImage' },
+        { model: File, attributes: ['thumb'], nested: true },
       ],
       order: [['createdAt', 'DESC']],
       limit: limit,
@@ -73,28 +87,27 @@ class PostService {
         nest: true,
         include: [
           { model: Tag, attributes: ['items'] },
-          { model: User, include: { model: File, as: 'avatar' } },
+          { model: User, include: { model: File } },
           {
             model: Comment,
-            include: [
-              { model: User, include: { model: File, as: 'avatar' } },
-              { model: File, as: 'assets' },
-            ],
+            include: [{ model: User, include: { model: File } }, { model: File }],
           },
-          { model: File, nested: true, as: 'previewImage' },
+          { model: File, nested: true, attributes: ['url', 'thumb'] },
         ],
         order: [[Comment, 'createdAt', 'DESC']],
       });
 
-      const parsedPosts = JSON.parse(JSON.stringify(postData));
+      const parsedPost = JSON.parse(JSON.stringify(postData));
+      const post = new PostDto(parsedPost);
       const { items } = postData.tags[0];
-      const user = new UserDto(parsedPosts.user);
-      const comments = parsedPosts.comments.map((comment) => {
+      const user = new UserDto(parsedPost.user);
+      const comments = parsedPost.comments.map((comment) => {
         return { ...comment, user: new UserDto(comment.user) };
       });
 
-      return { ...parsedPosts, tags: items, user, comments };
+      return { ...post, tags: items, user, comments };
     } catch (error) {
+      console.log(error);
       throw ApiError.badRequest('Пост не найден', error);
     }
   };
@@ -109,9 +122,9 @@ class PostService {
             attributes: ['items'],
             where: { items: { [Op.contains]: [tag] } },
           },
-          { model: User, include: { model: File, as: 'avatar', nested: true } },
+          { model: User, include: { model: File, nested: true } },
           { model: Comment, include: { model: User } },
-          { model: File, nested: true, as: 'previewImage' },
+          { model: File, nested: true, attributes: ['url', 'thumb'] },
         ],
       });
       const parsedPosts = JSON.parse(JSON.stringify(posts));
@@ -132,19 +145,28 @@ class PostService {
         },
 
         { model: Comment, include: { model: User } },
-        { model: File, nested: true, as: 'previewImage' },
+        { model: File, nested: true },
       ],
     });
     const parsedPosts = JSON.parse(JSON.stringify(posts));
     return this.convertePosts(parsedPosts);
   };
 
-  updatePosts = async ({ title, text, id, fileName, tagsArr }) => {
-    const postData = await Post.update(
-      { title, text, previewImageId: fileName },
-      { where: { id }, returning: true },
-    );
+  updatePosts = async ({ title, text, id, uploadedFile, tagsArr }) => {
+    const postData = await Post.update({ title, text }, { where: { id }, returning: true });
     await Tag.update({ items: tagsArr }, { where: { postId: id } });
+
+    const file = await File.findOne({ where: { postId: id } });
+
+    if (file) {
+      await File.update({ ...uploadedFile }, { where: { postId: id } });
+    } else {
+      await File.create({
+        ...uploadedFile,
+        postId: id,
+      });
+    }
+
     const parsedData = JSON.parse(JSON.stringify(...postData[1]));
 
     return parsedData;
