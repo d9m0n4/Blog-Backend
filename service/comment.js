@@ -3,16 +3,24 @@ import UserDto from '../dtos/userDto.js';
 import { Comment, File, Post, User } from '../models/models.js';
 
 class CommentService {
-  createComment = async (userId, postId, comment, file) => {
+  createComment = async (userId, postId, comment, uploadedFiles) => {
     const commentData = await Comment.create({
       text: comment,
-      assetsId: file ? file : null,
       userId,
       postId,
     });
+
+    if (uploadedFiles.length > 0) {
+      for (let file of uploadedFiles) {
+        await File.create({ ...file, commentId: commentData.id });
+      }
+    }
+    const commentFiles = await File.findAll({
+      where: { commentId: commentData.id },
+    });
     const user = await User.findOne({ where: { id: userId } });
-    const f = JSON.parse(JSON.stringify(commentData));
-    return { ...f, user };
+    const parsedComment = JSON.parse(JSON.stringify(commentData));
+    return { ...parsedComment, user, assets: commentFiles };
   };
   getUserComments = async (userId) => {
     const comments = await Comment.findAll({

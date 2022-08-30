@@ -6,22 +6,27 @@ class CommentsController {
     try {
       const { userId, postId, comment } = req.body;
       const { files } = req;
-      const fileNames = [];
+      const uploadedFiles = [];
 
       if (files) {
         const { file } = files;
         if (Array.isArray(file)) {
           for (const item of file) {
             const result = await uploadFile.upload(item);
-            fileNames.push(result.id);
+            uploadedFiles.push(result);
           }
         } else {
           const result = await uploadFile.upload(file);
-          fileNames.push(result.id);
+          uploadedFiles.push(result);
         }
       }
 
-      const commentData = await commentService.createComment(userId, postId, comment, fileNames);
+      const commentData = await commentService.createComment(
+        userId,
+        postId,
+        comment,
+        uploadedFiles,
+      );
       res.json(commentData);
     } catch (error) {
       console.log(error);

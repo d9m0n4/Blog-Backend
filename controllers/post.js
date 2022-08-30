@@ -89,9 +89,7 @@ class PostController {
       const file = req.files;
       const currentUser = req.user;
 
-      console.log();
-
-      if (id !== postId || user.id !== currentUser.id) {
+      if (id !== postId || !currentUser) {
         return next(ApiError.badRequest('Пост не найден'));
       }
 
