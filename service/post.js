@@ -3,16 +3,18 @@ import PostDto from '../dtos/postDto.js';
 import UserDto from '../dtos/userDto.js';
 import ApiError from '../error/index.js';
 import { Comment, File, Post, Tag, User } from '../models/models.js';
-import uploadFile from './uploadFile.js';
 
 class PostService {
   convertePosts = (posts) => {
     return posts.map((post) => {
       const postItem = new PostDto(post);
       const postUser = post.user ? new UserDto(post.user) : null;
+
       const { items } = post.tags[0];
       const comments = post.comments.map((comment) => {
-        return { ...comment, user: new UserDto(comment.user) };
+        const commentsUser = new UserDto(comment.user);
+
+        return { ...comment, user: commentsUser };
       });
       return { ...postItem, user: postUser, tags: [...items], comments };
     });
@@ -29,11 +31,10 @@ class PostService {
       await Tag.create({ items: tagsArr, postId: post.id });
 
       if (file) {
-        const postFile = await File.create({
+        await File.create({
           ...file,
           postId: post.id,
         });
-        console.log(postFile);
       }
 
       await User.increment('rating', { by: 1, where: { id: userId } });
@@ -60,14 +61,17 @@ class PostService {
     limit = limit < 0 ? 10 : limit;
     const offset = page * limit;
 
-    const posts = await Post.findAndCountAll({
+    const posts = await Post.findAll({
       where: whereOption,
       nest: true,
       include: [
         { model: Tag, attributes: ['items'] },
-        { model: User, nested: true },
-        { model: Comment, include: { model: User } },
-        { model: File, attributes: ['thumb'], nested: true },
+        { model: User, nested: true, include: { model: File, attributes: ['thumb', 'url'] } },
+        {
+          model: Comment,
+          include: { model: User, include: { model: File, attributes: ['thumb', 'url'] } },
+        },
+        { model: File, attributes: ['thumb', 'url'], nested: true },
       ],
       order: [['createdAt', 'DESC']],
       limit: limit,
@@ -75,8 +79,8 @@ class PostService {
     });
 
     const parsedPosts = JSON.parse(JSON.stringify(posts));
-    const convertedPosts = this.convertePosts([...parsedPosts.rows]);
-    return { posts: convertedPosts, count: parsedPosts.count };
+    const convertedPosts = this.convertePosts([...parsedPosts]);
+    return { posts: convertedPosts, count: posts.length };
   };
 
   getPostById = async (id) => {
@@ -194,8 +198,10 @@ class PostService {
 
   deletePost = async (id) => {
     const tags = await Tag.destroy({ where: { postId: id } });
+    const comments = await Comment.destroy({ where: { postId: id } });
     const post = await Post.destroy({ where: { id } });
-    if (post && tags) {
+
+    if (post && tags && comments) {
       return post;
     }
     throw ApiError.badRequest('Не удалось удалить пост');

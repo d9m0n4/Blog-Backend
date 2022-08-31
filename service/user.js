@@ -58,14 +58,14 @@ class UserService {
 
   refreshToken = async (token) => {
     if (!token) {
-      throw ApiError.unauthorized('Пользователь не авторизован1');
+      throw ApiError.unauthorized('Пользователь не авторизован');
     }
 
     const tokenUserData = TokenService.validateRefreshToken(token);
 
     const tokenFromDB = await TokenService.findToken(token);
     if (!tokenUserData || !tokenFromDB) {
-      throw ApiError.unauthorized('Пользователь не авторизован2');
+      throw ApiError.unauthorized('Пользователь не авторизован');
     }
 
     const user = await User.findOne({
@@ -132,7 +132,10 @@ class UserService {
       include: [
         {
           model: Comment,
-          include: [{ model: Post }, { model: User, include: { model: File } }],
+          include: [
+            { model: Post },
+            { model: User, include: { model: File, attributes: ['url', 'thumb'] } },
+          ],
         },
         {
           model: Post,
@@ -143,9 +146,15 @@ class UserService {
     });
 
     const data = JSON.parse(JSON.stringify(userData));
+
+    const userComments = data.comments.map((comment) => {
+      const commentUser = new UserDto(comment.user);
+      return { ...comment, user: commentUser };
+    });
+
     const user = new UserDto(data);
     const userPosts = data.posts.map((postItem) => new PostDto(postItem));
-    return { ...user, comments: data.comments, posts: userPosts };
+    return { ...user, comments: userComments, posts: userPosts };
   };
 }
 

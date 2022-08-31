@@ -18,9 +18,13 @@ class CommentService {
     const commentFiles = await File.findAll({
       where: { commentId: commentData.id },
     });
-    const user = await User.findOne({ where: { id: userId } });
+    const user = await User.findOne({
+      where: { id: userId },
+      include: { model: File, attributes: ['url', 'thumb'] },
+    });
+    const userData = new UserDto(user);
     const parsedComment = JSON.parse(JSON.stringify(commentData));
-    return { ...parsedComment, user, assets: commentFiles };
+    return { ...parsedComment, user: userData, assets: commentFiles };
   };
   getUserComments = async (userId) => {
     const comments = await Comment.findAll({
@@ -28,7 +32,7 @@ class CommentService {
       nest: true,
       include: [
         { model: Post },
-        { model: User, include: { model: File, as: 'avatar', nested: true } },
+        { model: User, include: { model: File, nested: true, attributes: ['thumb', 'url'] } },
       ],
       order: [['createdAt', 'DESC']],
     });
@@ -40,7 +44,6 @@ class CommentService {
 
       return { ...comment, post: commentPost, user: commentUser };
     });
-    console.log(comments);
     return readyComments;
   };
 }
