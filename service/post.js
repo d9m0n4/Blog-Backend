@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import PostDto from '../dtos/postDto.js';
 import UserDto from '../dtos/userDto.js';
 import ApiError from '../error/index.js';
@@ -61,26 +61,38 @@ class PostService {
     limit = limit < 0 ? 10 : limit;
     const offset = page * limit;
 
-    const posts = await Post.findAll({
+    const posts = await Post.findAndCountAll({
       where: whereOption,
       nest: true,
       include: [
         { model: Tag, attributes: ['items'] },
-        { model: User, nested: true, include: { model: File, attributes: ['thumb', 'url'] } },
+        {
+          model: User,
+          nested: true,
+          include: { model: File, attributes: ['thumb', 'url', 'id', 'public_id'] },
+        },
         {
           model: Comment,
-          include: { model: User, include: { model: File, attributes: ['thumb', 'url'] } },
+          include: [
+            {
+              model: User,
+              include: { model: File, attributes: ['thumb', 'url', 'id', 'public_id'] },
+            },
+            { model: File, attributes: ['thumb', 'url', 'id', 'public_id'] },
+          ],
         },
-        { model: File, attributes: ['thumb', 'url'], nested: true },
+        { model: File, attributes: ['thumb', 'url', 'id', 'public_id'], nested: true },
       ],
+      distinct: true,
+      subQuery: false,
       order: [['createdAt', 'DESC']],
       limit: limit,
       offset: offset,
     });
 
-    const parsedPosts = JSON.parse(JSON.stringify(posts));
+    const parsedPosts = JSON.parse(JSON.stringify(posts.rows));
     const convertedPosts = this.convertePosts([...parsedPosts]);
-    return { posts: convertedPosts, count: posts.length };
+    return { posts: convertedPosts, count: posts.count };
   };
 
   getPostById = async (id) => {
@@ -94,7 +106,13 @@ class PostService {
           { model: User, include: { model: File } },
           {
             model: Comment,
-            include: [{ model: User, include: { model: File } }, { model: File }],
+            include: [
+              {
+                model: User,
+                include: { model: File, attributes: ['thumb', 'url', 'id', 'public_id'] },
+              },
+              { model: File, attributes: ['thumb', 'url', 'id', 'public_id'] },
+            ],
           },
           { model: File, nested: true, attributes: ['url', 'thumb'] },
         ],

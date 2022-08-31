@@ -20,11 +20,11 @@ class CommentService {
     });
     const user = await User.findOne({
       where: { id: userId },
-      include: { model: File, attributes: ['url', 'thumb'] },
+      include: { model: File, attributes: ['url', 'thumb', 'id', 'public_id'] },
     });
     const userData = new UserDto(user);
     const parsedComment = JSON.parse(JSON.stringify(commentData));
-    return { ...parsedComment, user: userData, assets: commentFiles };
+    return { ...parsedComment, user: userData, files: commentFiles };
   };
   getUserComments = async (userId) => {
     const comments = await Comment.findAll({
@@ -32,7 +32,10 @@ class CommentService {
       nest: true,
       include: [
         { model: Post },
-        { model: User, include: { model: File, nested: true, attributes: ['thumb', 'url'] } },
+        {
+          model: User,
+          include: { model: File, nested: true, attributes: ['thumb', 'url', 'id', 'public_id'] },
+        },
       ],
       order: [['createdAt', 'DESC']],
     });
