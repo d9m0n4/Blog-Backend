@@ -61,9 +61,12 @@ class PostService {
     limit = limit < 0 ? 10 : limit;
     const offset = page * limit;
 
-    const posts = await Post.findAndCountAll({
+    const posts = await Post.findAll({
       where: whereOption,
       nest: true,
+      order: [['createdAt', 'DESC']],
+      limit: limit,
+      offset: offset,
       include: [
         { model: Tag, attributes: ['items'] },
         {
@@ -83,16 +86,13 @@ class PostService {
         },
         { model: File, attributes: ['thumb', 'url', 'id', 'public_id'], nested: true },
       ],
-      distinct: true,
-      subQuery: false,
-      order: [['createdAt', 'DESC']],
-      limit: limit,
-      offset: offset,
     });
 
-    const parsedPosts = JSON.parse(JSON.stringify(posts.rows));
+    const postsCount = await Post.count();
+
+    const parsedPosts = JSON.parse(JSON.stringify(posts));
     const convertedPosts = this.convertePosts([...parsedPosts]);
-    return { posts: convertedPosts, count: posts.count };
+    return { posts: convertedPosts, count: postsCount };
   };
 
   getPostById = async (id) => {
