@@ -38,6 +38,16 @@ class PostController {
     }
   };
 
+  getPopularPosts = async (req, res, next) => {
+    try {
+      const posts = await post.getPopularPosts();
+      res.json(posts);
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  };
+
   getPostById = async (req, res, next) => {
     try {
       const { id } = req.params;
@@ -50,6 +60,7 @@ class PostController {
       next(error);
     }
   };
+
   getPostByTag = async (req, res, next) => {
     try {
       const { tag } = req.params;

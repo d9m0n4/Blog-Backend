@@ -28,6 +28,7 @@ const Routes = () => {
   router.post('/posts', authHandler, PostCtrl.create);
   router.post('/posts/like', authHandler, PostCtrl.likePost);
   router.get('/posts', PostCtrl.getAllPosts);
+  router.get('/posts/popular', PostCtrl.getPopularPosts);
   router.get('/posts/:id', PostCtrl.getPostById);
   router.get('/posts/user/:id', PostCtrl.getUserPosts);
   router.get('/posts/tags/:tag', PostCtrl.getPostByTag);
