@@ -97,23 +97,21 @@ class PostService {
 
   getPopularPosts = async () => {
     const posts = await Post.findAll({
-      nest: true,
+      attributes: {
+        include: [[Sequelize.fn('COUNT', Sequelize.col('comments.id')), 'commentsCount']],
+      },
       include: [
         {
+          attributes: [],
           model: Comment,
         },
       ],
-      attributes: [
-        [
-          Sequelize.literal('(SELECT COUNT(*) FROM Comments WHERE Comments.postId = Post.id)'),
-          'CommentsCount',
-        ],
-      ],
-      order: [[Sequelize.literal('CommentsCount'), 'DESC']],
+      group: ['post.id'],
+      order: [[Sequelize.col('commentsCount'), 'DESC']],
     });
 
     const parsedPosts = JSON.parse(JSON.stringify(posts));
-    console.log(parsedPosts);
+
     return parsedPosts;
   };
 

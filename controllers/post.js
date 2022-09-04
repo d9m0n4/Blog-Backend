@@ -40,7 +40,8 @@ class PostController {
 
   getPopularPosts = async (req, res, next) => {
     try {
-      const posts = await post.getPopularPosts();
+      const postsData = await post.getPopularPosts();
+      const posts = postsData.map((post) => ({ title: post.title, count: post.commentsCount }));
       res.json(posts);
     } catch (error) {
       console.log(error);
