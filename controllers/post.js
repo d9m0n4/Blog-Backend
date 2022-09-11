@@ -41,7 +41,11 @@ class PostController {
   getPopularPosts = async (req, res, next) => {
     try {
       const postsData = await post.getPopularPosts();
-      const posts = postsData.map((post) => ({ title: post.title, count: post.commentsCount }));
+      const posts = postsData.map((post) => ({
+        id: post.id,
+        title: post.title,
+        count: post.commentsCount,
+      }));
       res.json(posts);
     } catch (error) {
       console.log(error);
@@ -123,6 +127,7 @@ class PostController {
       const result = await post.deletePost(id);
       res.json(result);
     } catch (error) {
+      console.log(error);
       next(error);
     }
   };

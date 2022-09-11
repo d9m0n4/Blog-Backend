@@ -111,8 +111,9 @@ class PostService {
     });
 
     const parsedPosts = JSON.parse(JSON.stringify(posts));
+    const limitedPosts = parsedPosts.slice(0, 5);
 
-    return parsedPosts;
+    return limitedPosts;
   };
 
   getPostById = async (id) => {
@@ -239,8 +240,10 @@ class PostService {
     const comments = await Comment.destroy({ where: { postId: id } });
     const post = await Post.destroy({ where: { id } });
 
-    if (post && tags && comments) {
-      return post;
+    console.log(post, tags, comments);
+
+    if (post && tags) {
+      return { post, tags, comments };
     }
     throw ApiError.badRequest('Не удалось удалить пост');
   };
