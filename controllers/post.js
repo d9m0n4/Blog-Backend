@@ -11,13 +11,15 @@ class PostController {
       }
       const file = req.files;
       const tagsArr = tags.split(',').map((i) => i.trim().toLowerCase());
+      const filteredTags = tagsArr.filter((n) => n);
+      const utags = new Set(filteredTags);
 
       const uploadedFile = file ? await uploadFile.upload(file.img) : null;
 
       const postData = await post.create({
         title,
         text,
-        tagsArr,
+        utags,
         userId,
         file: uploadedFile,
       });
@@ -110,10 +112,12 @@ class PostController {
       }
 
       const tagsArr = tags.split(',').map((i) => i.trim().toLowerCase());
+      const filteredTags = tagsArr.filter((n) => n);
+      const utags = new Set(filteredTags);
 
       const uploadedFile = file ? await uploadFile.upload(file.img) : previewImage;
 
-      const postData = await post.updatePosts({ title, text, id, uploadedFile, tagsArr });
+      const postData = await post.updatePosts({ title, text, id, uploadedFile, utags });
       res.json(postData);
     } catch (error) {
       console.log(error);

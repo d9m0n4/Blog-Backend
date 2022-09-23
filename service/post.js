@@ -11,6 +11,7 @@ class PostService {
       const postUser = post.user ? new UserDto(post.user) : null;
 
       const { items } = post.tags[0];
+
       const comments = post.comments.map((comment) => {
         const commentsUser = new UserDto(comment.user);
 
@@ -20,7 +21,7 @@ class PostService {
     });
   };
 
-  create = async ({ title, text, tagsArr, userId, file }) => {
+  create = async ({ title, text, utags, userId, file }) => {
     try {
       const post = await Post.create({
         title,
@@ -28,7 +29,7 @@ class PostService {
         userId,
       });
 
-      await Tag.create({ items: tagsArr, postId: post.id });
+      await Tag.create({ items: [...utags], postId: post.id });
 
       if (file) {
         await File.create({
@@ -195,9 +196,9 @@ class PostService {
     return this.convertePosts(parsedPosts);
   };
 
-  updatePosts = async ({ title, text, id, uploadedFile, tagsArr }) => {
+  updatePosts = async ({ title, text, id, uploadedFile, utags }) => {
     const postData = await Post.update({ title, text }, { where: { id }, returning: true });
-    await Tag.update({ items: tagsArr }, { where: { postId: id } });
+    await Tag.update({ items: [...utags] }, { where: { postId: id } });
 
     const file = await File.findOne({ where: { postId: id } });
 
