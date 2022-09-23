@@ -42,7 +42,7 @@ class UserService {
 
     const isEqualPassword = await bcrypt.compare(password, user.password);
     if (!isEqualPassword) {
-      throw ApiError.badRequest('Не верный пароль');
+      throw ApiError.badRequest('Не верный логин или пароль');
     }
 
     const userData = new UserDto(user);
