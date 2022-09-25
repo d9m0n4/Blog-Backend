@@ -8,7 +8,7 @@
 //   port: process.env.DB_PORT,
 // });
 
-import { Client } from 'pg';
+const { Client } = require('pg');
 
 const client = new Client({
   connectionString: process.env.DATABASE_URL,
