@@ -65,9 +65,6 @@ class UserService {
 
     const tokenFromDB = await TokenService.findToken(token);
     
-    console.log('ut', tokenUserData)
-    console.log('dbt', tokenFromDB)
-    
     if (!tokenUserData || !tokenFromDB) {
       throw ApiError.unauthorized('Пользователь не авторизован');
     }
