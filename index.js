@@ -20,7 +20,8 @@ app.use(express.static(path.resolve(__dirname, 'static')));
 app.use(
   cors({
     credentials: true,
-    origin: 'https://cheblog.vercel.app/',
+    origin: ['https://cheblog.vercel.app', 'https://cheblog-lcc9wzfad-d9m0n4.vercel.app'],
+    
   }),
 );
 app.use(cookieParser());
