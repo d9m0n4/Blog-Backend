@@ -20,7 +20,7 @@ app.use(express.static(path.resolve(__dirname, 'static')));
 app.use(
   cors({
     credentials: true,
-    origin: ['http://localhost:3000', 'http://192.168.0.30:3000'],
+    origin: 'https://cheblog.vercel.app/',
   }),
 );
 app.use(cookieParser());
