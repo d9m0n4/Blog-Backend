@@ -18,7 +18,6 @@ class UserController {
         maxAge: 30 * 24 * 60 * 60 * 1000,
         httpOnly: true,
         path: '/',
-        sameSite: "none",
         secure: true,
       });
 
@@ -35,7 +34,6 @@ class UserController {
         maxAge: 30 * 24 * 60 * 60 * 1000,
         httpOnly: true,
         path: '/',
-        sameSite: "none",
         secure: true,
       });
       res.status(200).json(userData);
@@ -62,7 +60,6 @@ class UserController {
         maxAge: 30 * 24 * 60 * 60 * 1000,
         httpOnly: true,
         path: '/',
-        sameSite: "none", 
         secure: true
       });
       console.log(userData)
