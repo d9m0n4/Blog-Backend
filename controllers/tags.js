@@ -4,8 +4,8 @@ class TagsController {
   getTags = async (req, res, next) => {
     const tags = await Tag.findAll();
     const items = tags.map((item) => item.items.map((item) => item.trim())).flat();
-
-    res.json([...items]);
+    const uitems = new Set(items);
+    res.json([...uitems]);
   };
 }
 
