@@ -40,6 +40,7 @@ class UserController {
       });
       res.status(200).json(userData);
     } catch (error) {
+      console.log(error)
       next(error);
     }
   };
