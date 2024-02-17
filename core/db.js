@@ -2,10 +2,10 @@ import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const sequlize = new Sequelize(process.env.PGDATABASE, process.env.PGUSER, process.env.PGPASSWORD, {
+const sequlize = new Sequelize(process.env.DBNAME, process.env.DBUSER, process.env.DBPASS, {
   dialect: 'postgres',
-  host: process.env.PGHOST,
-  port: process.env.PGPORT,
+  host: process.env.DBHOST,
+  // port: process.env.PGPORT,
   use_env_variable: 'DATABASE_URL',
   dialectOptions: {
     ssl: {

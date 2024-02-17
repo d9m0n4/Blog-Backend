@@ -21,7 +21,6 @@ app.use(
   cors({
     credentials: true,
     origin: ['https://cheblog.vercel.app', 'https://cheblog-lcc9wzfad-d9m0n4.vercel.app'],
-    
   }),
 );
 app.use(cookieParser());
@@ -34,11 +33,11 @@ const start = async () => {
   try {
     await sequlize.authenticate();
     await sequlize.sync();
-    app.listen(process.env.PORT, (err) => {
+    app.listen(process.env.APP_PORT, (err) => {
       if (err) {
         return console.log(err);
       }
-      console.log(`server started on ${process.env.PORT}`);
+      console.log(`server started on ${process.env.APP_PORT}`);
     });
   } catch (error) {
     console.log(error);
